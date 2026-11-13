@@ -741,7 +741,7 @@ function rebuild() {
 let CONFIRMED = new Set(CONFIRMED_SNAPSHOT), MISSED = new Set(MISSED_SNAPSHOT);
 let BLOCKED = false, MY_HASH = "", INVITES = [];
 let HUB = null, HUBST = { going: [], profile: {}, cars: [], allGoing: [], profiles: {}, sugg: [] }; // website only: per-person data
-const isGoing = e => !!HUB && (IS_OWNER ? CONFIRMED.has(e.id) && !isMissed(e) : HUBST.going.includes(e.id));   // owner: a confirmed event means going
+const isGoing = e => !!HUB && !IS_OWNER && HUBST.going.includes(e.id);   // members only: the owner's "going" is the Confirmed mark
 const goBadge = e => !IS_OWNER && isGoing(e) ? `<span class="gobadge">🙋 ${t("goBadge")}</span>` : "";
 const dispName = em => { const p = HUBST.profiles[em] || (HUB && em === HUB.me ? HUBST.profile : null) || {}; return (p.capo || "").trim() || `${p.first || ""} ${p.last || ""}`.trim() || em; };
 const myName = () => { const p = HUBST.profile || {}; return (p.capo || "").trim() || `${p.first || ""} ${p.last || ""}`.trim() || ME_NAME || ME_EMAIL; };
@@ -907,7 +907,8 @@ const state = { mapView: "europe", mapSel: null, tab: "upcoming", sub: "list", t
 const fromHash = () => { const h = location.hash.slice(1); state.tab = TABS.includes(h) ? h : "upcoming"; };
 fromHash();
 addEventListener("hashchange", () => { fromHash(); render(); main.scrollTop = 0; });
-const visible = () => EVENTS.filter(e => state.types.has(e.type));
+const shown = () => IS_OWNER ? EVENTS : EVENTS.filter(e => !isMissed(e));   // members don't see events Congo can't make
+const visible = () => shown().filter(e => state.types.has(e.type));
 const $ = s => document.querySelector(s);
 const main = $("#main");
 
@@ -922,7 +923,7 @@ function evRow(e) {
 }
 
 function viewUpcoming() {
-  const up = EVENTS.filter(e => e.E >= TODAY).slice(0, 4);
+  const up = shown().filter(e => e.E >= TODAY).slice(0, 4);
   if (!up.length) return `<p class="empty">${t("noUpcoming")}</p>`;
   const ask = HUB?.rulesReady ? (HUBST.sugg || []).filter(x => x.by === HUB.me && x.status === "ask").length : 0;
   const resub = HUB?.rulesReady ? (HUBST.sugg || []).filter(x => x.by === HUB.me && x.status === "nogo" && memberSees(x)).map(daysLeft) : [];
