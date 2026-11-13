@@ -102,7 +102,7 @@ function collectionAdapter(name) {
 // cars/{event~driver} {event, driver, driverName, seats, riders:[emails]}: owners write; members add or remove only themselves.
 function makeHub(user, owner) {
   const me = lc(user.email); const subs = [];
-  const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {} };
+  const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {}, sugg: [] };
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
   return {
@@ -112,11 +112,17 @@ function makeHub(user, owner) {
       on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; fire(); });
       on(F.doc(fs, "profiles", me), s => { st.profile = s.exists() ? s.data() : {}; fire(); });
       on(F.collection(fs, "cars"), qs => { st.cars = qs.docs.map(d => ({ id: d.id, ...d.data() })); fire(); });
+      // suggestions/{id} {text, by, byName, at, status: new|ask|answered|go|done|nogo, question, reply}: members see their own, owners all.
+      const sq = owner ? F.collection(fs, "suggestions") : F.query(F.collection(fs, "suggestions"), F.where("by", "==", me));
+      on(sq, qs => { st.sugg = qs.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(b.at).localeCompare(String(a.at))); fire(); });
       if (owner) {
         on(F.collection(fs, "going"), qs => { st.allGoing = qs.docs.map(d => ({ email: d.id, events: d.data().events || [] })); fire(); });
         on(F.collection(fs, "profiles"), qs => { st.profiles = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       }
     },
+    suggest: (text, byName) => F.addDoc(F.collection(fs, "suggestions"), { text: String(text).slice(0, 2000), by: me, byName: String(byName || "").slice(0, 80), at: new Date().toISOString(), status: "new" }),
+    sugReply: (id, reply) => F.updateDoc(F.doc(fs, "suggestions", id), { reply: String(reply).slice(0, 2000), status: "answered", repliedAt: new Date().toISOString() }),
+    sugSet: (id, data) => F.updateDoc(F.doc(fs, "suggestions", id), { ...data, by_owner: me, changedAt: new Date().toISOString() }),
     setGoing: (id, yes) => F.setDoc(F.doc(fs, "going", me), { events: yes ? F.arrayUnion(id) : F.arrayRemove(id), at: new Date().toISOString() }, { merge: true }),
     setProfile: p => F.setDoc(F.doc(fs, "profiles", me), { first: String(p.first || "").slice(0, 60), last: String(p.last || "").slice(0, 60), capo: String(p.capo || "").slice(0, 60), at: new Date().toISOString() }),
     async setCar(event, seats, driverName, from = "", leave = "") {
