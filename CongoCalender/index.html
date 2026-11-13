@@ -1012,9 +1012,16 @@ function drawMap() {
   if (state.mapSel && byCity.has(state.mapSel)) sel(state.mapSel); else if (cap.dataset.off) cap.innerHTML = `${t("tapCity")} · ${esc(cap.dataset.off)}`;
 }
 
+// Owner accounts (sha256 of the email) never count as "joining": a confirmed event already means the owner goes.
+const OWNER_H = new Set(["ad12ab6e2fc84e6229b52ba08b2173c65ef9815c7c14e395de3c06b074ad9848","f8b961fb11119a0e68653ead42caec6365d8c22158c9b201ea8fd0c49a0a9d35","5a36a08ac103832e4e4d791b2097d4e53c7e45d9fb7e0e963915b0757326bbd6","d8392d0c6c4e4d5cb87077781d2d622945f5976cf86e27abf7bf3230bcfa4940"]);
+const OWN_EMAIL = new Map();
+function isOwnerEmail(x) {
+  if (!OWN_EMAIL.has(x)) { OWN_EMAIL.set(x, false); sha256(String(x).trim().toLowerCase()).then(h => { if (OWNER_H.has(h)) { OWN_EMAIL.set(x, true); hubRender(); } }).catch(() => {}); }
+  return OWN_EMAIL.get(x);
+}
 function viewJoining() {
   if (!canJoinTab()) return "";
-  const rows = EVENTS.map(e => ({ e, who: HUBST.allGoing.filter(g => g.events.includes(e.id)).map(g => g.email), cars: HUBST.cars.filter(c => c.event === e.id) })).filter(x => x.who.length || x.cars.length);
+  const rows = EVENTS.map(e => ({ e, who: HUBST.allGoing.filter(g => g.events.includes(e.id)).map(g => g.email).filter(x => !isOwnerEmail(x)), cars: HUBST.cars.filter(c => c.event === e.id) })).filter(x => x.who.length || x.cars.length);
   const card = ({ e, who, cars }) => `<div class="joinev">${evRow(e)}<div class="who">${who.map(x => `<span>${esc(dispName(x))}</span>`).join("")}</div>
     ${cars.map(c => `<div class="carl">${t("carsLine", { n: esc(c.driverName || dispName(c.driver)), r: (c.riders || []).length, m: c.seats })}${(c.riders || []).length ? ` · ${c.riders.map(x => esc(dispName(x))).join(", ")}` : ""}${fromHtml(c) ? `<br>${fromHtml(c)}` : ""}</div>`).join("")}</div>`;
   const up = rows.filter(x => x.e.E >= TODAY), past = rows.filter(x => x.e.E < TODAY).reverse();
