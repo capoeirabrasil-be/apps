@@ -787,7 +787,7 @@ const memberSees = x => !(x.status === "done" && x.seenBy) && !(x.status === "no
 const sgQA = x => `${x.question ? `<div class="sgq"><b>${t("sugQ")}:</b> ${esc(x.question)}</div>` : ""}${x.reply ? `<div class="sgq"><b>${t("sugA")}:</b> ${esc(x.reply)}</div>` : ""}`;
 const sgForm = (cls, id, name, val, ph, send) => `<form class="${cls}" data-${cls}="${esc(id)}"><textarea name="${name}" rows="3" maxlength="2000" ${ph ? `placeholder="${ph}"` : ""} required>${val ? esc(val) : ""}</textarea><div class="sgbtns"><button class="btn" type="submit">${send}</button><button class="btn alt" type="button" data-sgclose="1">${t("sgCancel")}</button></div></form>`;
 function sugBox() {
-  if (!HUB) return "";
+  if (!HUB || !HUB.rulesReady) return "";
   const mine = (HUBST.sugg || []).filter(x => x.by === HUB.me && memberSees(x));
   const li = x => {
     const ed = SG_OPEN && SG_OPEN.id === x.id ? SG_OPEN.mode : "";
@@ -803,7 +803,7 @@ function sugBox() {
   </section>`;
 }
 function sugAdmin() {
-  if (!HUB || !IS_OWNER) return "";
+  if (!HUB || !HUB.rulesReady || !IS_OWNER) return "";
   const open = (HUBST.sugg || []).filter(x => ["new", "ask", "answered", "go"].includes(x.status || "new"));
   const item = x => {
     const ed = SG_OPEN && SG_OPEN.id === x.id ? SG_OPEN.mode : "";
@@ -821,7 +821,7 @@ function sugAdmin() {
 }
 // Admin counts for the Analytics tab.
 function sugStats() {
-  if (!HUB || !IS_OWNER) return "";
+  if (!HUB || !HUB.rulesReady || !IS_OWNER) return "";
   const a = HUBST.sugg || [];
   const go = a.filter(x => x.wentGo || ["go", "done"].includes(x.status));
   const rows = [["💡", t("stTot"), a.length], ["✅", t("stGo"), go.length], ["✕", t("stNo"), a.filter(x => x.everNogo || x.status === "nogo").length], ["💬", t("stAsk"), a.filter(x => x.asked || x.question).length], ["✏️", t("stGoEd"), go.filter(x => x.edited).length]];
@@ -846,7 +846,7 @@ document.addEventListener("click", ev => {
 // Pop-ups: a member sees "built" / "NO GO" once for their own suggestion; the owner sees "built" once.
 const POP_SHOWN = new Set();
 function suggestPops() {
-  if (!HUB || $("#news").open || $("#remind").open || $("#sheet").open) return;
+  if (!HUB || !HUB.rulesReady || $("#news").open || $("#remind").open || $("#sheet").open) return;
   const a = HUBST.sugg || [];
   const x = IS_OWNER ? a.find(x => x.status === "done" && !x.seenOwner && !POP_SHOWN.has(x.id))
     : a.find(x => x.by === HUB.me && !POP_SHOWN.has(x.id) && ((x.status === "done" && !x.seenBy) || (x.status === "nogo" && x.seenNogo === false)));
@@ -924,8 +924,8 @@ function evRow(e) {
 function viewUpcoming() {
   const up = EVENTS.filter(e => e.E >= TODAY).slice(0, 4);
   if (!up.length) return `<p class="empty">${t("noUpcoming")}</p>`;
-  const ask = HUB ? (HUBST.sugg || []).filter(x => x.by === HUB.me && x.status === "ask").length : 0;
-  const resub = HUB ? (HUBST.sugg || []).filter(x => x.by === HUB.me && x.status === "nogo" && memberSees(x)).map(daysLeft) : [];
+  const ask = HUB?.rulesReady ? (HUBST.sugg || []).filter(x => x.by === HUB.me && x.status === "ask").length : 0;
+  const resub = HUB?.rulesReady ? (HUBST.sugg || []).filter(x => x.by === HUB.me && x.status === "nogo" && memberSees(x)).map(daysLeft) : [];
   const askBar = (ask ? `<a class="note sugnote" href="#howto">💬 ${t("sugAskBar")}</a>` : "") + (resub.length ? `<a class="note sugnote" href="#howto">${t("sugGoneBar", { n: Math.min(...resub) })}</a>` : "");
   return askBar + `<div class="ownbar">${addBtn()}<button class="addbtn alt igbtn" data-act-ig="1" ${CAN_EXPORT ? "" : "hidden"}>⬇ ${t("igExport")}</button></div>` + `<section class="next" aria-label="${t("nextEvents")}"><div class="lbl"><span>${t("nextEvents")}</span></div>` + up.map((n, i) => {
     const inDays = Math.round((n.S - TODAY) / 864e5);
@@ -1137,7 +1137,7 @@ function isOwnerEmail(x) {
 }
 // Owner's member list: last online and how many of the last 30 days they opened the app (website only).
 function seenLine(email) {
-  if (!HUB || !IS_OWNER) return "";
+  if (!HUB || !HUB.rulesReady || !IS_OWNER) return "";
   const v = (HUBST.seen || {})[String(email || "").toLowerCase()];
   if (!v || !v.last) return `<small class="seen never">💤 ${t("seenNever")}</small>`;
   const d = Math.floor((Date.now() - new Date(v.last)) / 864e5), from = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
@@ -1156,8 +1156,8 @@ function viewJoining() {
     ${past.length ? `<details><summary class="lbl" style="cursor:pointer;margin:14px 0 10px">${t("joinPast")} (${past.length})</summary>${past.map(card).join("")}</details>` : ""}`;
 }
 function viewHowto() {
-  const S = [["📅", "up"], ["🗓️", "ag"], ["📄", "ev"], ["🙋", "go", 1], ["🚗", "car", 1], ["👤", "prof", 1], ["📊", "st"], ["🌐", "set"], ["💡", "sug", 1]];
-  const O = [["📣", "share"], ["👥", "join", 1], ["🚘", "ocar", 1], ["✅", "conf"], ["🗑️", "del"], ["✉️", "inv"], ["🔄", "ref"], ["🗳️", "osug", 1]];
+  const S = [["📅", "up"], ["🗓️", "ag"], ["📄", "ev"], ["🙋", "go", 1], ["🚗", "car", 1], ["👤", "prof", 1], ["📊", "st"], ["🌐", "set"], ...(HUB?.rulesReady ? [["💡", "sug", 1]] : [])];
+  const O = [["📣", "share"], ["👥", "join", 1], ["🚘", "ocar", 1], ["✅", "conf"], ["🗑️", "del"], ["✉️", "inv"], ["🔄", "ref"], ...(HUB?.rulesReady ? [["🗳️", "osug", 1]] : [])];
   const sec = ([ic, k, web]) => web && !HUB ? "" : `<section><span class="ic">${ic}</span><h3>${t("hw_" + k + "_h")}</h3><p>${t("hw_" + k + "_p")}${k === "share" ? `<br><button class="btn alt" type="button" style="margin-top:8px" data-sharecopy="https://apps.capoeirabrasil.be/CongoCalender/info/">${t("shareCopy")}</button>` : ""}</p></section>`;
   return `<h2 class="page-h">${t("howH")}</h2><p class="note" style="margin-top:0">${t("howSub")}</p><div class="howto">${S.map(sec).join("")}
     ${IS_OWNER ? `<h2 class="sub">${t("howOwner")}</h2>${O.map(sec).join("")}` : ""}</div>${sugBox()}`;
@@ -1653,7 +1653,7 @@ $("#remind").addEventListener("close", () => setTimeout(suggestPops, 300));   //
 // One-time news for members (website): shown once per device when they open the app.
 const NEWS_ID = "sug1";
 function maybeNews() {
-  if (!HUB || IS_OWNER || store.get("news") === NEWS_ID || $("#remind").open || $("#sheet").open) return suggestPops();
+  if (!HUB || !HUB.rulesReady || IS_OWNER || store.get("news") === NEWS_ID || $("#remind").open || $("#sheet").open) return suggestPops();
   store.set("news", NEWS_ID);
   showPop(t("newsH"), t("newsP"), [t("newsGo"), () => { location.hash = "howto"; setTimeout(() => document.querySelector("#sugform textarea")?.scrollIntoView({ block: "center" }), 250); }], () => setTimeout(suggestPops, 400));
 }

@@ -100,13 +100,16 @@ function collectionAdapter(name) {
 // ---- hub: per-person data (going, profile, car seats, refresh request) ----
 // going/{email} {events:[ids]} and profiles/{email} {first,last,capo}: each person writes only their own; owners read all.
 // cars/{event~driver} {event, driver, driverName, seats, riders:[emails]}: owners write; members add or remove only themselves.
+// Features that need Firestore rules Steven has not confirmed yet stay off until he says "firestore rules updated".
+// Bump RULES_READY to true only after that confirmation (and a check that the live rules match firestore.rules.final).
+const RULES_READY = false;
 function makeHub(user, owner) {
   const me = lc(user.email); const subs = [];
   const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {}, sugg: [], seen: {} };
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
   return {
-    me, owner,
+    me, owner, rulesReady: RULES_READY,
     watch(cb) {
       fire = () => cb(st);
       on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; fire(); });
@@ -177,7 +180,7 @@ async function startApp(user) {
     const now = new Date(), day = now.toISOString().slice(0, 10);
     F.setDoc(F.doc(fs, "seen", lc(user.email)), { last: now.toISOString(), days: F.arrayUnion(day), opens: F.increment(1) }, { merge: true }).catch(() => {});
   };
-  ping(); document.addEventListener("visibilitychange", ping);
+  if (RULES_READY) { ping(); document.addEventListener("visibilitychange", ping); }
   window.claude = {
     async use(cap) {
       if (cap === "user") return { isOwner: async () => owner, me: async () => ({ email: user.email || "", name: user.displayName || "" }) };
