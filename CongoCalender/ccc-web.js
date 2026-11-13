@@ -102,7 +102,7 @@ function collectionAdapter(name) {
 // cars/{event~driver} {event, driver, driverName, seats, riders:[emails]}: owners write; members add or remove only themselves.
 function makeHub(user, owner) {
   const me = lc(user.email); const subs = [];
-  const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {}, sugg: [] };
+  const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {}, sugg: [], seen: {} };
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
   return {
@@ -117,6 +117,7 @@ function makeHub(user, owner) {
       on(sq, qs => { st.sugg = qs.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(b.at).localeCompare(String(a.at))); fire(); });
       if (owner) {
         on(F.collection(fs, "going"), qs => { st.allGoing = qs.docs.map(d => ({ email: d.id, events: d.data().events || [] })); fire(); });
+        on(F.collection(fs, "seen"), qs => { st.seen = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
         on(F.collection(fs, "profiles"), qs => { st.profiles = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       }
     },
@@ -167,6 +168,16 @@ async function startApp(user) {
   try { await F.getDocs(F.query(F.collection(fs, "access"), F.limit(1))); owner = true; } catch {}
   window.__CCC = data;
   const HUB = makeHub(user, owner);
+  // "Last online" for the owner's member list: seen/{email} {last, days:[YYYY-MM-DD], opens}. At most one write per 15 minutes.
+  const ping = () => {
+    if (document.visibilityState !== "visible") return;
+    let prev = 0; try { prev = +localStorage.getItem("ccc.ping") || 0; } catch {}
+    if (Date.now() - prev < 15 * 60e3) return;
+    try { localStorage.setItem("ccc.ping", String(Date.now())); } catch {}
+    const now = new Date(), day = now.toISOString().slice(0, 10);
+    F.setDoc(F.doc(fs, "seen", lc(user.email)), { last: now.toISOString(), days: F.arrayUnion(day), opens: F.increment(1) }, { merge: true }).catch(() => {});
+  };
+  ping(); document.addEventListener("visibilitychange", ping);
   window.claude = {
     async use(cap) {
       if (cap === "user") return { isOwner: async () => owner, me: async () => ({ email: user.email || "", name: user.displayName || "" }) };
