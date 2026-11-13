@@ -773,7 +773,7 @@ const okBadge = e => isMissed(e) ? `<span class="ok no">✕ ${t(e.E < TODAY ? "m
 const days = e => Math.round((e.E - e.S) / 864e5) + 1;
 const onDay = (e, d) => e.S <= d && d <= e.E;
 // Years whose Google Calendar record is known to be incomplete (not every event was saved there).
-const INCOMPLETE_YEARS = [2023, 2024, 2025];
+const INCOMPLETE_YEARS = [2022, 2023, 2024, 2025];
 const incompleteNote = years => { const ys = INCOMPLETE_YEARS.filter(y => years.includes(y)); return ys.length ? `<p class="note">⚠️ ${t("incomplete", { y: ys.join(", ") })}</p>` : ""; };
 const isCity = p => p && !COUNTRY_PLACES.has(p);
 const placeText = e => [isCity(e.place) ? e.place : country(e.cc), e.cc && isCity(e.place) ? e.cc : ""].filter(Boolean).join(", ");
@@ -911,7 +911,7 @@ function viewAnalytics() {
   const done = evs.length;
   const cc = new Set(evs.map(e => e.cc).filter(Boolean)), cities = new Set(evs.map(e => e.place).filter(isCity));
 
-  let h = `<h2 class="page-h">${t("tab_analytics")}</h2>${incompleteNote(state.stScope === "all" ? years : [+state.stScope])}<div class="st-scope" role="group" style="margin-top:10px"><button data-scope="all" aria-pressed="${state.stScope === "all"}">${t("allYears")}</button>${years.map(y => `<button data-scope="${y}" aria-pressed="${state.stScope == y}">${y}</button>`).join("")}</div>`;
+  let h = `<h2 class="page-h">${t("tab_analytics")}</h2>${incompleteNote(state.stScope === "all" ? years : [+state.stScope])}<div class="st-scope" role="group" style="margin-top:10px"><button data-scope="all" aria-pressed="${state.stScope === "all"}">${t("allYears")}</button>${years.filter(y => y >= 2023).map(y => `<button data-scope="${y}" aria-pressed="${state.stScope == y}">${y}</button>`).join("")}</div>`;
   h += `<div class="stats"><div class="stat"><b>${evs.length}</b><small>${t("events")}</small></div><div class="stat"><b>${dayCount}</b><small>${t("days")}</small></div><div class="stat"><b>${cc.size}</b><small>${t("countries")}</small></div><div class="stat"><b>${cities.size}</b><small>${t("cities")}</small></div></div>`;
 
   const confN = live.filter(isConf).length, upc = live.filter(e => e.E >= TODAY), upcConf = upc.filter(isConf).length, missN = evsAll.filter(isMissed).length;
