@@ -714,7 +714,7 @@ let CONFIRMED = new Set(CONFIRMED_SNAPSHOT), MISSED = new Set(MISSED_SNAPSHOT);
 let BLOCKED = false, MY_HASH = "", INVITES = [];
 let HUB = null, HUBST = { going: [], profile: {}, cars: [], allGoing: [], profiles: {} }; // website only: per-person data
 const isGoing = e => !!HUB && (IS_OWNER ? CONFIRMED.has(e.id) && !isMissed(e) : HUBST.going.includes(e.id));   // owner: a confirmed event means going
-const goBadge = e => isGoing(e) ? `<span class="gobadge">🙋 ${t("goBadge")}</span>` : "";
+const goBadge = e => !IS_OWNER && isGoing(e) ? `<span class="gobadge">🙋 ${t("goBadge")}</span>` : "";
 const dispName = em => { const p = HUBST.profiles[em] || (HUB && em === HUB.me ? HUBST.profile : null) || {}; return (p.capo || "").trim() || `${p.first || ""} ${p.last || ""}`.trim() || em; };
 const myName = () => { const p = HUBST.profile || {}; return (p.capo || "").trim() || `${p.first || ""} ${p.last || ""}`.trim() || ME_NAME || ME_EMAIL; };
 let PROF_OK = false;
