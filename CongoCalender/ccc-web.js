@@ -96,6 +96,52 @@ function collectionAdapter(name) {
   };
 }
 
+
+// ---- hub: per-person data (going, profile, car seats, refresh request) ----
+// going/{email} {events:[ids]} and profiles/{email} {first,last,capo}: each person writes only their own; owners read all.
+// cars/{event~driver} {event, driver, driverName, seats, riders:[emails]}: owners write; members add or remove only themselves.
+function makeHub(user, owner) {
+  const me = lc(user.email); const subs = [];
+  const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {} };
+  let fire = () => {};
+  const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
+  return {
+    me, owner,
+    watch(cb) {
+      fire = () => cb(st);
+      on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; fire(); });
+      on(F.doc(fs, "profiles", me), s => { st.profile = s.exists() ? s.data() : {}; fire(); });
+      on(F.collection(fs, "cars"), qs => { st.cars = qs.docs.map(d => ({ id: d.id, ...d.data() })); fire(); });
+      if (owner) {
+        on(F.collection(fs, "going"), qs => { st.allGoing = qs.docs.map(d => ({ email: d.id, events: d.data().events || [] })); fire(); });
+        on(F.collection(fs, "profiles"), qs => { st.profiles = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
+      }
+    },
+    setGoing: (id, yes) => F.setDoc(F.doc(fs, "going", me), { events: yes ? F.arrayUnion(id) : F.arrayRemove(id), at: new Date().toISOString() }, { merge: true }),
+    setProfile: p => F.setDoc(F.doc(fs, "profiles", me), { first: String(p.first || "").slice(0, 60), last: String(p.last || "").slice(0, 60), capo: String(p.capo || "").slice(0, 60), at: new Date().toISOString() }),
+    async setCar(event, seats, driverName) {
+      const ref = F.doc(fs, "cars", `${event}~${me}`);
+      if (!seats) return F.deleteDoc(ref);
+      await F.runTransaction(fs, async tx => {
+        const s = await tx.get(ref); const riders = s.exists() ? s.data().riders || [] : [];
+        tx.set(ref, { event, driver: me, driverName: driverName || "", seats: Math.max(seats, riders.length), riders, at: new Date().toISOString() });
+      });
+    },
+    // First come, first served: the transaction re-reads the car, so two people can't take the last seat.
+    async seat(carId, take) {
+      const ref = F.doc(fs, "cars", carId);
+      return F.runTransaction(fs, async tx => {
+        const s = await tx.get(ref); if (!s.exists()) throw Object.assign(new Error("gone"), { code: "gone" });
+        const c = s.data(), r = c.riders || [];
+        if (take) { if (r.includes(me)) return "ok"; if (r.length >= c.seats) throw Object.assign(new Error("full"), { code: "full" }); tx.update(ref, { riders: [...r, me] }); }
+        else { if (!r.includes(me)) return "ok"; tx.update(ref, { riders: r.filter(x => x !== me) }); }
+        return "ok";
+      });
+    },
+    requestRefresh: () => F.setDoc(F.doc(fs, "refresh", "request"), { at: new Date().toISOString(), by: me, done: false }),
+  };
+}
+
 async function startApp(user) {
   show(`<p class="gwait">${g("wait")}</p>`);
   let data;
@@ -112,10 +158,12 @@ async function startApp(user) {
   let owner = false;
   try { await F.getDocs(F.query(F.collection(fs, "access"), F.limit(1))); owner = true; } catch {}
   window.__CCC = data;
+  const HUB = makeHub(user, owner);
   window.claude = {
     async use(cap) {
       if (cap === "user") return { isOwner: async () => owner, me: async () => ({ email: user.email || "", name: user.displayName || "" }) };
       if (cap === "db") return { collection: collectionAdapter };
+      if (cap === "hub") return HUB;
       if (cap === "downloads") return { async save({ filename, data }) { const u = URL.createObjectURL(data); const a = document.createElement("a"); a.href = u; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); } };
       throw new Error("unavailable: " + cap);
     },
