@@ -119,12 +119,12 @@ function makeHub(user, owner) {
     },
     setGoing: (id, yes) => F.setDoc(F.doc(fs, "going", me), { events: yes ? F.arrayUnion(id) : F.arrayRemove(id), at: new Date().toISOString() }, { merge: true }),
     setProfile: p => F.setDoc(F.doc(fs, "profiles", me), { first: String(p.first || "").slice(0, 60), last: String(p.last || "").slice(0, 60), capo: String(p.capo || "").slice(0, 60), at: new Date().toISOString() }),
-    async setCar(event, seats, driverName) {
+    async setCar(event, seats, driverName, from = "", leave = "") {
       const ref = F.doc(fs, "cars", `${event}~${me}`);
       if (!seats) return F.deleteDoc(ref);
       await F.runTransaction(fs, async tx => {
         const s = await tx.get(ref); const riders = s.exists() ? s.data().riders || [] : [];
-        tx.set(ref, { event, driver: me, driverName: driverName || "", seats: Math.max(seats, riders.length), riders, at: new Date().toISOString() });
+        tx.set(ref, { event, driver: me, driverName: driverName || "", seats: Math.max(seats, riders.length), riders, from: String(from).slice(0, 120), leave: String(leave).slice(0, 5), at: new Date().toISOString() });
       });
     },
     // First come, first served: the transaction re-reads the car, so two people can't take the last seat.
