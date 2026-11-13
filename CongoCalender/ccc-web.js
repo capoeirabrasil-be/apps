@@ -102,7 +102,7 @@ function collectionAdapter(name) {
 // cars/{event~driver} {event, driver, driverName, seats, riders:[emails]}: owners write; members add or remove only themselves.
 // Features that need Firestore rules Steven has not confirmed yet stay off until he says "firestore rules updated".
 // Bump RULES_READY to true only after that confirmation (and a check that the live rules match firestore.rules.final).
-const RULES_READY = false;
+const RULES_READY = true;
 function makeHub(user, owner) {
   const me = lc(user.email); const subs = [];
   const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {}, sugg: [], seen: {} };
