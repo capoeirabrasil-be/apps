@@ -1,26 +1,29 @@
 WEBVTT
 
-00:00:00.753 --> 00:00:11.893
+00:00:00.753 --> 00:00:11.773
 Cette partie est pour les organisateurs. Quand un événement est passé, une fenêtre demande si Congo y est allé. Touchez votre réponse, pour que les statistiques restent justes.
 
-00:00:12.394 --> 00:00:21.264
+00:00:12.273 --> 00:00:21.163
 Ouvrez un événement à venir et touchez J'y vais, confirmer. C'est tout ce qu'il faut en tant qu'organisateur : il n'y a pas de bouton J'y vais séparé pour vous.
 
-00:00:21.765 --> 00:00:30.795
+00:00:21.663 --> 00:00:30.913
 Vos plans changent ? Touchez Je ne peux plus. Les membres ne voient alors plus l'événement, et il ne compte pas dans les totaux. Touchez à nouveau pour annuler.
 
-00:00:31.296 --> 00:00:35.516
+00:00:31.415 --> 00:00:35.395
 Choisissez le type d'événement, pour que les couleurs et les comptes soient justes.
 
-00:00:36.017 --> 00:00:45.117
+00:00:35.896 --> 00:00:45.286
 Vous prenez la voiture ? Indiquez les places libres, d'où et à quelle heure vous partez, et touchez Enregistrer. Les membres peuvent alors réserver une place.
 
-00:00:45.617 --> 00:00:50.667
+00:00:45.787 --> 00:00:50.697
 L'onglet Qui vient montre, par événement, qui y va et qui est dans quelle voiture.
 
-00:00:51.168 --> 00:01:05.448
+00:00:51.198 --> 00:01:05.498
 Tout pour les organisateurs se trouve dans l'onglet Admin. Les notifications montrent qui vient, les nouvelles idées et les fonctions ajoutées. Plus bas, vous invitez des personnes avec leur adresse Google, et voyez quand chacun était en ligne pour la dernière fois.
 
-00:01:05.948 --> 00:01:20.478
-Les idées des membres arrivent dans Propositions de fonctions. GO veut dire qu'elle sera réalisée. NO GO vous demande une raison. Préciser envoie une question au membre, et Modifier vous permet de la réécrire d'abord. Les compteurs en haut suivent tout.
+00:01:05.999 --> 00:01:26.879
+Les signalements de bugs des membres viennent en premier, dans leur propre liste. Les idées suivent en dessous. GO veut dire qu'elle sera réalisée, NO GO vous demande un motif, et Préciser envoie une question au membre. Sur une idée en GO, Construire maintenant la fait réaliser à la prochaine vérification horaire ; sinon elle attend la mise à jour quotidienne.
+
+00:01:27.380 --> 00:01:41.220
+Pour finir, activez les notifications sur votre téléphone. Ouvrez l'app depuis l'écran d'accueil et touchez Activer les notifications. Vous recevez alors une alerte quand quelqu'un monte dans votre voiture, ou qu'une nouvelle idée ou un bug arrive.
 
