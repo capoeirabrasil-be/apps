@@ -292,7 +292,7 @@ dialog::backdrop { background: rgba(5,15,25,.55); }
 .row .ic { text-align: center; }
 .desc .flyer { display: block; margin: 8px 0; } .desc .flyer img { display: block; max-width: 100%; max-height: 70vh; margin: 0 auto; border-radius: 10px; background: var(--surface); }
 .desc .flyer.broken { display: inline; margin: 0; }
-.desc .flyer.ig iframe { display: block; width: 100%; max-width: 480px; height: min(calc(100vw + 150px), 680px); margin: 0 auto 4px; border: 0; border-radius: 10px; background: #fff; }
+.desc .flyer.ig iframe { display: block; width: 100%; max-width: 480px; height: min(calc(100vw + 330px), 860px); margin: 0 auto 4px; border: 0; border-radius: 10px; background: #fff; }
 .desc .flyer.ig > a { font-size: 13px; }
 .desc { font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; background: var(--surface-2); border-radius: 12px; padding: 12px 14px; }
 .desc ul { padding-left: 18px; margin: 6px 0; }
@@ -1363,7 +1363,7 @@ function flyerOf(url) {
   const drive = /(^|\.)drive\.google\.com$/.test(u.hostname) && (u.pathname.match(/\/file\/d\/([\w-]{10,})/) || [, u.searchParams.get("id")])[1];
   // Instagram post or reel: Instagram's own embed (public posts only; it can't be shown as a plain picture).
   const ig = /(^|\.)instagram\.com$/.test(u.hostname) && u.pathname.match(/^\/(?:[\w.]+\/)?(p|reel|tv)\/([\w-]{5,})/);
-  if (ig) return `<span class="flyer ig"><iframe src="https://www.instagram.com/${ig[1]}/${ig[2]}/embed/" loading="lazy" title="Instagram" allowtransparency="true" scrolling="no"></iframe><a href="${esc(u.href)}" target="_blank" rel="noopener">instagram.com ↗</a></span>`;
+  if (ig) return `<span class="flyer ig"><iframe src="https://www.instagram.com/${ig[1]}/${ig[2]}/embed/captioned/" loading="lazy" title="Instagram" allowtransparency="true" scrolling="no"></iframe><a href="${esc(u.href)}" target="_blank" rel="noopener">instagram.com ↗</a></span>`;
   if (drive && /^[\w-]{10,}$/.test(drive)) src = `https://drive.google.com/thumbnail?id=${drive}&sz=w1200`;
   else if (/\.(jpe?g|png|webp|gif)$/i.test(u.pathname)) src = u.href;
   if (!src) return "";
