@@ -841,6 +841,7 @@ document.addEventListener("submit", ev => {
   if (f.dataset?.sgask) { ev.preventDefault(); const v = f.q.value.trim(); if (!v) return; blur(); return hubDo(() => done(HUB.sugSet(f.dataset.sgask, { question: v, status: "ask", reply: "", asked: true })), b); }
   if (f.dataset?.sgnogo) { ev.preventDefault(); const v = f.why.value.trim(); if (!v) return; blur(); return hubDo(() => done(HUB.sugSet(f.dataset.sgnogo, { status: "nogo", nogoComment: v, nogoAt: new Date().toISOString(), everNogo: true, seenNogo: false })), b); }
 });
+document.addEventListener("change", ev => { if (ev.target.id === "langsel") { LANG = ev.target.value; store.set("lang", LANG); ddOpen(false); render(); } });
 document.addEventListener("click", ev => {
   const o = ev.target.closest?.("[data-sgopen]"); if (o) { SG_OPEN = { id: o.dataset.sgid, mode: o.dataset.sgopen }; return hubRender(); }
   if (ev.target.closest?.("[data-sgclose]")) { SG_OPEN = null; return hubRender(); }
@@ -1171,8 +1172,6 @@ function viewSettings() {
   return `<h2 class="page-h">${t("tab_settings")}</h2>
   <section class="set" style="margin-top:10px"><h3>${t("appearance")}</h3><div class="opts row" role="radiogroup" aria-label="${t("appearance")}">
     ${themes.map(([k, ic]) => `<button class="opt" role="radio" aria-checked="${THEME === k}" data-theme-set="${k}"><span class="ic">${ic}</span>${t(k)}</button>`).join("")}</div></section>
-  <section class="set"><h3>${t("language")}</h3><div class="opts" role="radiogroup" aria-label="${t("language")}">
-    ${LANGS.map(([k, name, fl]) => `<button class="opt" role="radio" aria-checked="${LANG === k}" data-lang="${k}" lang="${k}"><span class="ic">${fl}</span>${name}<span class="check">✓</span></button>`).join("")}</div></section>
   ${HUB ? `<section class="set"><h3>${t("profH")}</h3><p>${t("profSub")}</p><form id="profform" class="profform" novalidate>
     <label>${t("pCapo")}<input name="capo" maxlength="60" autocomplete="nickname" value="${esc(HUBST.profile.capo || "")}"></label>
     <label>${t("pFirst")}<input name="first" maxlength="60" autocomplete="given-name" value="${esc(HUBST.profile.first || "")}"></label>
@@ -1188,9 +1187,10 @@ function viewSettings() {
     ${INVITES.length ? `<ul class="invlist">${INVITES.map(x => `<li class="${x.revoked ? "rev" : ""}"><div><b>${esc(x.email)}</b><small>${x.revoked ? "⛔ " + t("revokedOn", { d: fmtDay(x.revokedAt) }) : "✉️ " + t("invitedOn", { d: fmtDay(x.at) })}</small>${seenLine(x.email || x.id)}</div>
       <div class="invbtns">${x.revoked ? `<button class="btn alt" data-unrevoke="${x.id}">${t("restore")}</button><button class="btn alt" data-forget="${x.id}" aria-label="${t("forget")}">🗑</button>` : `<button class="btn off" data-revoke="${x.id}">${t("revoke")}</button>`}</div></li>`).join("")}</ul>` : `<p class="empty" style="padding:6px 0 14px">${t("noInvites")}</p>`}
   </section>` : ""}
-  ${window.CCC_WEB ? `<section class="set"><h3>${t("account")}</h3><p>${ME_EMAIL ? esc(t("signedAs", { e: ME_EMAIL })) : "…"}</p><div class="actions" style="padding-bottom:14px"><button class="btn alt" type="button" data-signout="1">${t("signOut")}</button></div></section>` : `<section class="set"><h3>${t("account")}</h3><p id="acct">${!ID_DONE ? "…" : ME_EMAIL ? esc(t("signedAs", { e: ME_EMAIL })) + (CAN_EXPORT ? " · " + t("acctTools") : "") : IS_OWNER ? t("acctOwner") : t("acctNone")}</p></section>`}
   <section class="set"><h3>${t("about")}</h3><p>${t("aboutText", { n: EVENTS.length, d: `${d.getUTCDate()} ${monLong(d)} ${d.getUTCFullYear()}` })}</p></section>
-  ${sugAdmin()}`;
+  ${sugAdmin()}
+  <section class="set fform"><h3>${t("language")}</h3><div style="padding-bottom:14px"><select id="langsel" aria-label="${t("language")}">${LANGS.map(([k, name, fl]) => `<option value="${k}" lang="${k}"${LANG === k ? " selected" : ""}>${fl} ${name}</option>`).join("")}</select></div></section>
+  ${window.CCC_WEB ? `<section class="set"><h3>${t("account")}</h3><p>${ME_EMAIL ? esc(t("signedAs", { e: ME_EMAIL })) : "…"}</p><div class="actions" style="padding-bottom:14px"><button class="btn alt" type="button" data-signout="1">${t("signOut")}</button></div></section>` : `<section class="set"><h3>${t("account")}</h3><p id="acct">${!ID_DONE ? "…" : ME_EMAIL ? esc(t("signedAs", { e: ME_EMAIL })) + (CAN_EXPORT ? " · " + t("acctTools") : "") : IS_OWNER ? t("acctOwner") : t("acctNone")}</p></section>`}`;
 }
 
 function render() {
