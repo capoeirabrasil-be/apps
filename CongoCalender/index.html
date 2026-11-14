@@ -1419,9 +1419,11 @@ $("#sheet").addEventListener("click", ev => { if (ev.target.id === "sheet") ev.t
 // ---- Interaction -------------------------------------------------------------------------
 // The menu is position: fixed (the header clips overflow), placed under the button in the orange bar.
 const ddPlace = () => { const m = $("#langmenu"), r = $("#langbtn").getBoundingClientRect(); m.style.top = (r.bottom + 6) + "px"; m.style.left = Math.max(8, Math.min(innerWidth - m.offsetWidth - 8, r.left + r.width / 2 - m.offsetWidth / 2)) + "px"; };
-addEventListener("scroll", () => { if (!$("#langmenu").hidden) ddOpen(false); }, true);
+// Close on scroll only when the page really moved (iPhone fires scroll events on focus and toolbar changes).
+let DD_Y = 0;
+addEventListener("scroll", () => { if (!$("#langmenu").hidden && Math.abs($("#langbtn").getBoundingClientRect().top - DD_Y) > 12) ddOpen(false); }, true);
 addEventListener("resize", () => { if (!$("#langmenu").hidden) ddPlace(); });
-const ddOpen = open => { $("#langmenu").hidden = !open; if (open) ddPlace(); $("#langbtn").setAttribute("aria-expanded", open); if (open) $("#langmenu [aria-checked=true]")?.focus(); };
+const ddOpen = open => { $("#langmenu").hidden = !open; if (open) { ddPlace(); DD_Y = $("#langbtn").getBoundingClientRect().top; } $("#langbtn").setAttribute("aria-expanded", open); if (open && matchMedia("(hover: hover)").matches) $("#langmenu [aria-checked=true]")?.focus({ preventScroll: true }); };
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#langmenu").hidden) { ddOpen(false); $("#langbtn").focus(); } });
 document.addEventListener("click", ev => {
   if (ev.target.closest("#langbtn")) return ddOpen($("#langmenu").hidden);
