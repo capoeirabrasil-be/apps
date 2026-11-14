@@ -9,7 +9,16 @@ const [{ initializeApp }, A, F] = await Promise.all([
 
 const app = initializeApp(window.CCC_FIREBASE);
 const auth = A.getAuth(app);
-const fs = F.getFirestore(app);
+// "Available offline" (Settings, per device): Firestore keeps a copy of the calendar on the phone (IndexedDB),
+// so the app opens without internet. ccc.offline = "on" | "clear" (switched off: wipe the copy once) | unset.
+const OFFLINE = (() => { try { return localStorage.getItem("ccc.offline"); } catch { return null; } })();
+let fs;
+if (OFFLINE === "on") { try { fs = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); } catch { fs = F.getFirestore(app); } }
+else { fs = F.getFirestore(app); if (OFFLINE === "clear") { try { await F.clearIndexedDbPersistence(fs); localStorage.removeItem("ccc.offline"); } catch {} } }
+window.cccOffline = {
+  on: OFFLINE === "on",
+  set(on) { try { localStorage.setItem("ccc.offline", on ? "on" : "clear"); } catch {} location.reload(); },
+};
 
 // ---- gate UI (own small dictionary: the app's I18N isn't loaded yet) ----
 const G = {
@@ -62,7 +71,8 @@ gate.addEventListener("click", ev => {
   if (ev.target.closest("#galt")) { ev.preventDefault(); signIn(); }
   if (ev.target.closest("#gother")) { try { window.google?.accounts?.id?.disableAutoSelect(); } catch {} A.signOut(auth); }
 });
-window.cccSignOut = () => A.signOut(auth).then(() => location.reload());
+// Signing out also wipes the offline copy on this device (the switch stays on for the next sign-in).
+window.cccSignOut = () => A.signOut(auth).then(async () => { if (OFFLINE === "on") { try { await F.terminate(fs); await F.clearIndexedDbPersistence(fs); } catch {} } location.reload(); });
 
 // ---- db adapter: Firestore behind the app's db interface ----
 const lc = s => String(s || "").trim().toLowerCase();
@@ -208,8 +218,10 @@ async function startApp(user) {
     return show(`<h2>${g("noH")}</h2><p>${esc(e?.message || e)}</p>`);
   }
   // Owner = may list the access collection (rules allow that for the owner only).
-  let owner = false;
-  try { await F.getDocs(F.query(F.collection(fs, "access"), F.limit(1))); owner = true; } catch {}
+  // Asked of the server (a cached answer would wrongly say yes); offline, the last server answer for this email is used.
+  let owner = false; const ok = "ccc.owner." + lc(user.email);
+  try { await F.getDocsFromServer(F.query(F.collection(fs, "access"), F.limit(1))); owner = true; try { localStorage.setItem(ok, "1"); } catch {} }
+  catch (e) { if (e?.code === "permission-denied") { try { localStorage.removeItem(ok); } catch {} } else { try { owner = localStorage.getItem(ok) === "1"; } catch {} } }
   window.__CCC = data;
   const HUB = makeHub(user, owner);
   // "Last online" for the owner's member list: seen/{email} {last, days:[YYYY-MM-DD], opens}. At most one write per 15 minutes.
