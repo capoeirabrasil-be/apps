@@ -103,6 +103,18 @@ function collectionAdapter(name) {
 // Features that need Firestore rules Steven has not confirmed yet stay off until he says "firestore rules updated".
 // Bump RULES_READY to true only after that confirmation (and a check that the live rules match firestore.rules.final).
 const RULES_READY = true;
+// Phone push for owners: pushTokens/{email} {devices: {<deviceId>: {token, at, ua, lang}}}. Needs the pushTokens rule
+// and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
+const PUSH_READY = false;
+const PUSH_ON = () => PUSH_READY && !!window.CCC_VAPID && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+let MSG = null;
+async function messaging() {
+  if (MSG) return MSG;
+  const M = await import(`${FB}/firebase-messaging.js`);
+  if (!(await M.isSupported())) throw Object.assign(new Error("unsupported"), { code: "unsupported" });
+  return (MSG = { M, m: M.getMessaging(app) });
+}
+const devId = () => { try { let d = localStorage.getItem("ccc.dev"); if (!d) { d = Math.random().toString(36).slice(2, 12); localStorage.setItem("ccc.dev", d); } return d; } catch { return "web"; } };
 function makeHub(user, owner) {
   const me = lc(user.email); const subs = [];
   const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {}, sugg: [], seen: {} };
@@ -149,6 +161,31 @@ function makeHub(user, owner) {
         else { if (!r.includes(me)) return "ok"; tx.update(ref, { riders: r.filter(x => x !== me) }); }
         return "ok";
       });
+    },
+    // push.state(): "unsupported" | "install" (iPhone, not opened from the home screen) | "denied" | "on" | "off"
+    push: {
+      get ready() { return owner && PUSH_ON(); },
+      state() {
+        if (!this.ready) { const ios = /iP(hone|ad|od)/.test(navigator.userAgent); return ios && PUSH_READY && !navigator.standalone ? "install" : "unsupported"; }
+        if (Notification.permission === "denied") return "denied";
+        try { return Notification.permission === "granted" && localStorage.getItem("ccc.push") === "on" ? "on" : "off"; } catch { return "off"; }
+      },
+      async enable(lang) {
+        const perm = await Notification.requestPermission();
+        if (perm !== "granted") throw Object.assign(new Error("denied"), { code: "denied" });
+        const reg = await navigator.serviceWorker.register("sw.js");
+        await navigator.serviceWorker.ready;
+        const { M, m } = await messaging();
+        const token = await M.getToken(m, { vapidKey: window.CCC_VAPID, serviceWorkerRegistration: reg });
+        if (!token) throw new Error("no token");
+        await F.setDoc(F.doc(fs, "pushTokens", me), { devices: { [devId()]: { token, at: new Date().toISOString(), ua: navigator.userAgent.slice(0, 160), lang: String(lang || "en").slice(0, 2) } } }, { merge: true });
+        try { localStorage.setItem("ccc.push", "on"); } catch {}
+      },
+      async disable() {
+        try { const { M, m } = await messaging(); await M.deleteToken(m); } catch {}
+        await F.updateDoc(F.doc(fs, "pushTokens", me), { [`devices.${devId()}`]: F.deleteField() }).catch(() => {});
+        try { localStorage.setItem("ccc.push", "off"); } catch {}
+      },
     },
     requestRefresh: () => F.setDoc(F.doc(fs, "refresh", "request"), { at: new Date().toISOString(), by: me, done: false }),
   };
