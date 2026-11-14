@@ -207,11 +207,11 @@ function makeHub(user, owner) {
 
 async function startApp(user) {
   show(`<p class="gwait">${g("wait")}</p>`);
-  let data;
+  let data, calAt = "";
   try {
     const snap = await F.getDoc(F.doc(fs, "cal", "main"));
     if (!snap.exists()) throw Object.assign(new Error("empty"), { code: "not-found" });
-    data = JSON.parse(snap.data().json);
+    data = JSON.parse(snap.data().json); calAt = snap.data().at || "";
   } catch (e) {
     started = false;
     if (e?.code === "permission-denied") return showNoAccess(user.email);
@@ -223,6 +223,13 @@ async function startApp(user) {
   try { await F.getDocsFromServer(F.query(F.collection(fs, "access"), F.limit(1))); owner = true; try { localStorage.setItem(ok, "1"); } catch {} }
   catch (e) { if (e?.code === "permission-denied") { try { localStorage.removeItem(ok); } catch {} } else { try { owner = localStorage.getItem(ok) === "1"; } catch {} } }
   window.__CCC = data;
+  // Available offline: the calendar was read from the phone's copy when there was no internet. As soon as the
+  // phone is online again (or the app comes back to the front), fetch the server copy and reload if it is newer.
+  if (OFFLINE === "on") {
+    const fresh = async () => { if (!navigator.onLine) return; try { const s = await F.getDocFromServer(F.doc(fs, "cal", "main")); if (s.exists() && (s.data().at || "") !== calAt) location.reload(); } catch {} };
+    addEventListener("online", fresh);
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") fresh(); });
+  }
   const HUB = makeHub(user, owner);
   // "Last online" for the owner's member list: seen/{email} {last, days:[YYYY-MM-DD], opens}. At most one write per 15 minutes.
   const ping = () => {
