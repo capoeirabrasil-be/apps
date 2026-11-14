@@ -186,6 +186,7 @@ h1 span { display: block; color: var(--orange); font-weight: 600; font-size: .45
 .yearhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .yearhead h2 { font: 800 22px var(--display); margin: 0; }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+.stats.s3 { grid-template-columns: repeat(3, 1fr); }
 .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 4px; text-align: center; }
 .stat b { display: block; font: 800 22px/1.1 var(--display); color: var(--accent); }
 .stat small { font-size: 11.5px; color: var(--muted); }
@@ -1036,7 +1037,7 @@ function viewAnalytics() {
   const cc = new Set(evs.map(e => e.cc).filter(Boolean)), cities = new Set(evs.map(e => e.place).filter(isCity));
 
   let h = `<h2 class="page-h">${t("tab_analytics")}</h2>${incompleteNote(state.stScope === "all" ? years : [+state.stScope])}<div class="st-scope" role="group" style="margin-top:10px"><button data-scope="all" aria-pressed="${state.stScope === "all"}">${t("allYears")}</button>${years.filter(y => y >= 2023).map(y => `<button data-scope="${y}" aria-pressed="${state.stScope == y}">${y}</button>`).join("")}</div>`;
-  h += `<div class="stats"><div class="stat"><b>${evs.length}</b><small>${t("events")}</small></div><div class="stat"><b>${dayCount}</b><small>${t("days")}</small></div><div class="stat"><b>${cc.size}</b><small>${t("countries")}</small></div><div class="stat"><b>${cities.size}</b><small>${t("cities")}</small></div></div>`;
+  h += `<div class="stats${IS_OWNER ? "" : " s3"}"><div class="stat"><b>${evs.length}</b><small>${t("events")}</small></div>${IS_OWNER ? `<div class="stat"><b>${dayCount}</b><small>${t("days")}</small></div>` : ""}<div class="stat"><b>${cc.size}</b><small>${t("countries")}</small></div><div class="stat"><b>${cities.size}</b><small>${t("cities")}</small></div></div>`;
 
   const confN = live.filter(isConf).length, upc = live.filter(e => e.E >= TODAY), upcConf = upc.filter(isConf).length, missN = evsAll.filter(isMissed).length;
   h += `<section class="card"><h3>${t("confirmed")}</h3><p class="sub">${t("confSub")}</p>${toCheck().length ? `<button class="btn alt rm-open" data-remopen>⏳ ${t("remOpen", { n: toCheck().length })}</button>` : ""}${bars([{ label: t("confirmed"), pre: "✅ ", n: confN, c: "var(--ok)" }, { label: t("notYet"), pre: "⏳ ", n: live.length - confN, c: "var(--muted)" }, ...(missN ? [{ label: t("missedBar"), pre: "❌ ", n: missN, c: "#D4554B" }] : [])])}<p class="sub" style="margin:10px 0 0">${t("confLine", { a: done, c: upcConf, u: upc.length })}</p></section>`;
