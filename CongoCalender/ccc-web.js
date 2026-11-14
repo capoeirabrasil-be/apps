@@ -105,7 +105,7 @@ function collectionAdapter(name) {
 const RULES_READY = true;
 // Phone push for owners: pushTokens/{email} {devices: {<deviceId>: {token, at, ua, lang}}}. Needs the pushTokens rule
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
-const PUSH_READY = false;
+const PUSH_READY = true;
 const PUSH_ON = () => PUSH_READY && !!window.CCC_VAPID && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 let MSG = null;
 async function messaging() {
