@@ -838,7 +838,7 @@ function sugBox() {
       ${nogo ? (ed === "resub" ? sgForm("sgresub", x.id, "text", x.text, "", t("sugResubSend")) : `<div class="sgbtns"><button class="btn alt" data-sgopen="resub" data-sgid="${esc(x.id)}">✏️ ${t("sugResub")}</button></div><small class="sgcount">⏳ ${esc(daysLeft(x) === 1 ? t("sugGone1") : t("sugGone", { n: daysLeft(x) }))}</small>`) : ""}</li>`;
   };
   return `<section class="set sugbox"><h3>💡 ${t("sugH")}</h3><p>${t("sugSub")}</p>
-    <form id="sugform"><label class="lbl" style="display:block;margin-bottom:4px">${t("sugKind")}</label><select name="kind" class="sgkind"><option value="feedback">${t("kFb")}</option><option value="idea">${t("kIdea")}</option><option value="bug">${t("kBug")}</option></select><textarea name="text" rows="3" maxlength="2000" placeholder="${t("sugPhFb")}" required></textarea><div class="actions"><button class="btn" type="submit">${t("sugSend")}</button><span class="hubmsg" id="sugmsg">${SUG_OK ? t("sugThanks") : ""}</span></div></form>
+    <form id="sugform"><label class="lbl" style="display:block;margin-bottom:4px">${t("sugKind")}</label><select name="kind" class="sgkind"><option value="feedback">${t("kFb")}</option><option value="bug">${t("kBug")}</option><option value="idea">${t("kIdea")}</option></select><textarea name="text" rows="3" maxlength="2000" placeholder="${t("sugPhFb")}" required></textarea><div class="actions"><button class="btn" type="submit">${t("sugSend")}</button><span class="hubmsg" id="sugmsg">${SUG_OK ? t("sugThanks") : ""}</span></div></form>
     ${mine.length ? `<div class="lbl" style="margin-top:12px">${t("sugMine")}</div><ul class="suglist">${mine.map(li).join("")}</ul>` : ""}
   </section>`;
 }
@@ -859,7 +859,7 @@ function sugAdmin() {
         : `<div class="sgbtns"><button class="btn sg-go" data-sgdo="go" data-sgid="${esc(x.id)}">✅ ${t("sgGo")}</button><button class="btn off" data-sgopen="nogo" data-sgid="${esc(x.id)}">✕ ${t("sgNo")}</button><button class="btn alt" data-sgopen="ask" data-sgid="${esc(x.id)}">💬 ${t("sgAsk")}</button><button class="btn alt" data-sgopen="edit" data-sgid="${esc(x.id)}">✏️ ${t("sgEdit")}</button></div>`}
     </li>`;
   };
-  return `<section class="set sugadmin"><h3>🗳️ ${t("sgH")}</h3><p>${t("sgSub")}</p>${sugStats()}${open.length ? [["bug", "sgBugsH"], ["feedback", "sgFbH"], ["idea", "sgIdeasH"]].map(([k, h]) => { const l = open.filter(x => (x.kind === "bug" ? "bug" : x.kind === "feedback" ? "feedback" : "idea") === k); return l.length ? `<div class="lbl sgsec">${t(h)} (${l.length})</div><ul class="suglist">${l.map(item).join("")}</ul>` : ""; }).join("") : `<p class="hint">${t("sgNone")}</p>`}</section>`;
+  return `<section class="set sugadmin"><h3>🗳️ ${t("sgH")}</h3><p>${t("sgSub")}</p>${sugStats()}${open.length ? [["feedback", "sgFbH"], ["bug", "sgBugsH"], ["idea", "sgIdeasH"]].map(([k, h]) => { const l = open.filter(x => (x.kind === "bug" ? "bug" : x.kind === "feedback" ? "feedback" : "idea") === k); return l.length ? `<div class="lbl sgsec">${t(h)} (${l.length})</div><ul class="suglist">${l.map(item).join("")}</ul>` : ""; }).join("") : `<p class="hint">${t("sgNone")}</p>`}</section>`;
 }
 // Admin counts, shown above the suggestion list in Settings.
 function sugStats() {
@@ -873,7 +873,7 @@ function sugStats() {
   };
   const fbs = all.filter(x => x.kind === "feedback");
   const fbBlock = `<h4 class="sgstitle">${t("kFb")}</h4><div class="stats sgstats">${[["💬", t("stRec"), fbs.length], ["⏳", t("stWait"), fbs.filter(x => ["new", "answered"].includes(x.status)).length], ["👀", t("stRead"), fbs.filter(x => x.status === "done" && x.react !== "like").length], ["👍", t("stLiked"), fbs.filter(x => x.react === "like").length], ["❓", t("stAsk"), fbs.filter(x => x.asked || x.question).length]].map(([ic, l, n]) => `<div class="stat"><b>${n}</b><small>${ic} ${l}</small></div>`).join("")}</div>`;
-  return block(all.filter(x => x.kind !== "bug" && x.kind !== "feedback"), t("kIdea"), "stTot", false) + block(all.filter(x => x.kind === "bug"), t("kBug"), "stRep", true) + fbBlock;
+  return fbBlock + block(all.filter(x => x.kind === "bug"), t("kBug"), "stRep", true) + block(all.filter(x => x.kind !== "bug" && x.kind !== "feedback"), t("kIdea"), "stTot", false);
 }
 document.addEventListener("submit", ev => {
   const f = ev.target; const b = f.querySelector?.("[type=submit]");
@@ -1367,7 +1367,7 @@ function sugArchive() {
   const groups = [["feat", "arcFeatH", done.filter(x => x.kind !== "bug" && x.kind !== "feedback"), x => t("arcAddedOn", { d: fmtDay(x.doneAt || x.changedAt) })],
     ["bug", "arcBugH", done.filter(x => x.kind === "bug"), x => t("arcFixedOn", { d: fmtDay(x.doneAt || x.changedAt) })],
     ["fb", "arcFbH", done.filter(x => x.kind === "feedback"), x => `${x.react === "like" ? "👍" : "👀"} ${t("arcLastUpd", { d: fmtDT(x.changedAt || x.doneAt) })}`]];
-  return groups.map(([k, hk, list, when]) => `<section class="set"><h3 class="tgl"><button type="button" data-arctgl="${k}" aria-expanded="${ARC_OPEN[k]}">${t(hk)} (${list.length}) <span class="chev">${ARC_OPEN[k] ? "▾" : "▸"}</span></button></h3>${ARC_OPEN[k] ? (list.length ? `<ul class="suglist">${list.sort(byDate).map(x => `<li><small>${esc(x.byName || dispName(x.by))} · ${when(x)}</small><p>${esc(x.text)}</p></li>`).join("")}</ul>` : `<p class="hint">${t("sgNone")}</p>`) : ""}</section>`).join("");
+  return [groups[2], groups[1], groups[0]].map(([k, hk, list, when]) => `<section class="set"><h3 class="tgl"><button type="button" data-arctgl="${k}" aria-expanded="${ARC_OPEN[k]}">${t(hk)} (${list.length}) <span class="chev">${ARC_OPEN[k] ? "▾" : "▸"}</span></button></h3>${ARC_OPEN[k] ? (list.length ? `<ul class="suglist">${list.sort(byDate).map(x => `<li><small>${esc(x.byName || dispName(x.by))} · ${when(x)}</small><p>${esc(x.text)}</p></li>`).join("")}</ul>` : `<p class="hint">${t("sgNone")}</p>`) : ""}</section>`).join("");
 }
 function viewAdmin() {
   if (!IS_OWNER) return "";
