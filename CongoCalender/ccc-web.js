@@ -163,7 +163,9 @@ function makeHub(user, owner) {
         on(F.collection(fs, "profiles"), qs => { st.profiles = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       }
     },
-    setDesc: (id, text) => F.setDoc(F.doc(fs, "descs", String(id)), { text: String(text).slice(0, 4000), by: real, at: new Date().toISOString(), synced: false }),
+    setDesc: (id, text) => F.setDoc(F.doc(fs, "descs", String(id)), { text: String(text).slice(0, 4000), by: real, at: new Date().toISOString(), synced: false }, { merge: true }),
+    setLoc: (id, loc) => F.setDoc(F.doc(fs, "descs", String(id)), { loc: String(loc).slice(0, 300), by: real, at: new Date().toISOString(), synced: false }, { merge: true }),
+    flyerLocUsed: id => F.setDoc(F.doc(fs, "flyers", String(id)), { locUsed: true }, { merge: true }),
     flyerImg: async id => { const d = await F.getDoc(F.doc(fs, "flyerImg", String(id))); return d.exists() ? d.data().img : null; },
     setFlyer: async (id, img) => { id = String(id); const at = new Date().toISOString(); await F.setDoc(F.doc(fs, "flyerImg", id), { img, at, by: real }); await F.setDoc(F.doc(fs, "flyers", id), { has: true, read: false, by: real, at, imgAt: at }, { merge: true }); },
     flyerUsed: id => F.setDoc(F.doc(fs, "flyers", String(id)), { descUsed: true }, { merge: true }),
