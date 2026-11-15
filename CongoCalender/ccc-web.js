@@ -139,7 +139,7 @@ function makeHub(user, owner) {
     watch(cb) {
       fire = () => cb(st);
       on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; fire(); });
-      on(F.doc(fs, "profiles", me), s => { st.profile = s.exists() ? s.data() : {}; fire(); });
+      on(F.doc(fs, "profiles", me), s => { st.profile = s.exists() ? s.data() : {}; st.profileLoaded = true; fire(); });
       on(F.collection(fs, "cars"), qs => { st.cars = qs.docs.map(d => ({ id: d.id, ...d.data() })); fire(); });
       // suggestions/{id} {text, by, byName, at, status: new|ask|answered|go|done|nogo, question, reply}: members see their own, owners all.
       const sq = owner ? F.collection(fs, "suggestions") : F.query(F.collection(fs, "suggestions"), F.where("by", "==", me));
