@@ -166,6 +166,7 @@ function makeHub(user, owner) {
     setDesc: (id, text) => F.setDoc(F.doc(fs, "descs", String(id)), { text: String(text).slice(0, 4000), by: real, at: new Date().toISOString(), synced: false }),
     flyerImg: async id => { const d = await F.getDoc(F.doc(fs, "flyerImg", String(id))); return d.exists() ? d.data().img : null; },
     setFlyer: async (id, img) => { id = String(id); const at = new Date().toISOString(); await F.setDoc(F.doc(fs, "flyerImg", id), { img, at, by: real }); await F.setDoc(F.doc(fs, "flyers", id), { has: true, read: false, by: real, at, imgAt: at }, { merge: true }); },
+    flyerUsed: id => F.setDoc(F.doc(fs, "flyers", String(id)), { descUsed: true }, { merge: true }),
     delFlyer: async id => { id = String(id); await F.deleteDoc(F.doc(fs, "flyerImg", id)); await F.setDoc(F.doc(fs, "flyers", id), { has: false, imgRemovedAt: new Date().toISOString() }, { merge: true }); },
     suggest: (text, byName, kind, shots) => F.addDoc(F.collection(fs, "suggestions"), { text: String(text).slice(0, 2000), by: real, byName: String(byName || "").slice(0, 80), at: new Date().toISOString(), status: "new", kind: kind === "bug" || kind === "feedback" ? kind : "idea", ...((kind === "bug" || kind !== "feedback") && Array.isArray(shots) && shots.length ? { shots: shots.filter(x => typeof x === "string" && x.startsWith("data:image/")).slice(0, 3) } : {}) }),
     sugReply: (id, reply) => F.updateDoc(F.doc(fs, "suggestions", id), { reply: String(reply).slice(0, 2000), status: "answered", repliedAt: new Date().toISOString() }),
