@@ -126,7 +126,7 @@ const FLYERS_READY = true;
 // (owners may write them). Keep false until Steven says "firestore rules updated" and the live rules match the file; then run the data move.
 const LINKS_READY = true;
 // Description edits (descs/{id}) need a new Firestore rule. Keep false until Steven says "firestore rules updated" and the live rules match the file.
-const DESC_READY = false;
+const DESC_READY = true;
 const LINKS = { "steven.demei@gmail.com": "visaodojogo@gmail.com", "congocapoeira@gmail.com": "visaodojogo@gmail.com", "capoeirabrasilbelgium@gmail.com": "visaodojogo@gmail.com" };
 const PUSH_ON = () => PUSH_READY && !!window.CCC_VAPID && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 let MSG = null;
