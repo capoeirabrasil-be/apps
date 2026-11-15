@@ -136,7 +136,7 @@ async function messaging() {
 }
 const devId = () => { try { let d = localStorage.getItem("ccc.dev"); if (!d) { d = Math.random().toString(36).slice(2, 12); localStorage.setItem("ccc.dev", d); } return d; } catch { return "web"; } };
 function makeHub(user, owner) {
-  const real = lc(user.email); const me = LINKS_READY && LINKS[real] ? LINKS[real] : real; const ids = LINKS_READY ? [real, me] : [real]; const subs = [];
+  const real = lc(user.email); const me = LINKS_READY && LINKS[real] ? LINKS[real] : real; const ids = LINKS_READY && (LINKS[real] || Object.values(LINKS).includes(real)) ? [...new Set([...Object.keys(LINKS), ...Object.values(LINKS)])] : [real]; const subs = [];
   const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {}, sugg: [], seen: {}, flyers: {} };
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
