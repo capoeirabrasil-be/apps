@@ -1465,16 +1465,15 @@ function sugArchive() {
 // ---- Public calendar check: hourly, Claude compares the public Grupo Capoeira Brasil calendar with ours. Proposals live in flyers/pub-<id> (no new rules). The owner picks; the next hourly run applies it. ----
 let PUB_OPEN = true;
 const todayISO = () => new Date().toISOString().slice(0, 10);
-document.addEventListener("toggle", ev => { if (ev.target.id === "pubdet") PUB_OPEN = ev.target.open; }, true);
 function pubSection() {
   if (!HUB?.flyersReady || !IS_OWNER) return "";
   const L = Object.entries(HUBST.flyers || {}).filter(([k, v]) => k.startsWith("pub-") && v?.pub && v.status === "open" && !v.choice && String(v.end || v.start) >= todayISO()).sort((a, b) => String(a[1].start).localeCompare(String(b[1].start)));
   if (!L.length) return "";
   const cut = x => esc(String(x || "").slice(0, 600)) + (String(x || "").length > 600 ? "…" : "");
-  return `<section class="set"><details id="pubdet"${PUB_OPEN ? " open" : ""}><summary><b>🌐 ${t("pubH")} (${L.length})</b></summary><p>${t("pubSub")}</p>${[["new", "pubNew"], ["diff", "pubDiff"]].map(([kd, hk]) => { const LL = L.filter(x => x[1].kind === kd); return LL.length ? `<h4>${t(hk)} (${LL.length})</h4><ul class="invlist">${LL.map(([k, v]) => `<li style="display:block"><div><b>${esc(v.title)}</b><small>${v.start ? fmtDay(v.start) : ""}${v.loc ? " · " + esc(v.loc) : ""}</small><small>${v.kind === "new" ? "🆕 " + t("pubNew") : "✏️ " + t("pubDiff")}</small></div>
+  return `<section class="set"><h3 class="tgl"><button type="button" data-pubtgl="1" aria-expanded="${PUB_OPEN}">🌐 ${t("pubH")} (${L.length}) <span class="chev">${PUB_OPEN ? "▾" : "▸"}</span></button></h3>${PUB_OPEN ? `<p>${t("pubSub")}</p>${[["new", "pubNew"], ["diff", "pubDiff"]].map(([kd, hk]) => { const LL = L.filter(x => x[1].kind === kd); return LL.length ? `<h4>${t(hk)} (${LL.length})</h4><ul class="invlist">${LL.map(([k, v]) => `<li style="display:block"><div><b>${esc(v.title)}</b><small>${v.start ? fmtDay(v.start) : ""}${v.loc ? " · " + esc(v.loc) : ""}</small><small>${v.kind === "new" ? "🆕 " + t("pubNew") : "✏️ " + t("pubDiff")}</small></div>
     ${v.kind === "diff" ? `<details><summary>${t("pubOurs")}</summary><p class="hint" style="white-space:pre-wrap">${cut(v.ourDesc) || "–"}</p></details>` : ""}
     ${v.desc ? `<details${v.kind === "diff" ? " open" : ""}><summary>${t("pubTheirs")}</summary><p class="hint" style="white-space:pre-wrap">${cut(v.desc)}</p></details>` : ""}
-    <div class="invbtns">${v.kind === "new" ? `<button class="btn" type="button" data-pub="${k}" data-ch="add">✅ ${t("pubKeepNew")}</button><button class="btn alt" type="button" data-pub="${k}" data-ch="discard">🗑 ${t("pubDiscard")}</button>` : `<button class="btn" type="button" data-pub="${k}" data-ch="update">🔄 ${t("pubUpdate")}</button><button class="btn alt" type="button" data-pub="${k}" data-ch="keep">✋ ${t("pubKeep")}</button>`}</div></li>`).join("")}</ul>` : ""; }).join("")}</details></section>`;
+    <div class="invbtns">${v.kind === "new" ? `<button class="btn" type="button" data-pub="${k}" data-ch="add">✅ ${t("pubKeepNew")}</button><button class="btn alt" type="button" data-pub="${k}" data-ch="discard">🗑 ${t("pubDiscard")}</button>` : `<button class="btn" type="button" data-pub="${k}" data-ch="update">🔄 ${t("pubUpdate")}</button><button class="btn alt" type="button" data-pub="${k}" data-ch="keep">✋ ${t("pubKeep")}</button>`}</div></li>`).join("")}</ul>` : ""; }).join("")}` : ""}</section>`;
 }
 document.addEventListener("click", ev => { const b = ev.target.closest?.("[data-pub]"); if (!b) return; b.disabled = true; HUB.pubDecide(b.dataset.pub, b.dataset.ch).then(() => hubRender()).catch(() => { b.disabled = false; alert(t("hubErr")); }); });
 function viewAdmin() {
@@ -1691,6 +1690,7 @@ document.addEventListener("click", ev => {
   if (ds.sub) { state.sub = ds.sub; return render(); }
   if (ds.scope) { state.stScope = ds.scope; state.mapSel = null; return render(); }
   if (ds.mapview) { state.mapView = ds.mapview; state.mapSel = null; const y = main.scrollTop; render(); main.scrollTop = y; return; }
+  if (ds.pubtgl) { PUB_OPEN = !PUB_OPEN; const y = main.scrollTop; render(); main.scrollTop = y; return; }
   if (ds.arctgl) { ARC_OPEN[ds.arctgl] = !ARC_OPEN[ds.arctgl]; const y = main.scrollTop; render(); main.scrollTop = y; return; }
   if (ds.invtgl) { INV_OPEN = !INV_OPEN; const y = main.scrollTop; render(); main.scrollTop = y; return; }
   if (ds.typeAll) { state.types = new Set(Object.keys(TYPE_C)); return render(); }
