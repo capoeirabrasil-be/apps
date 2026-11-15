@@ -125,6 +125,8 @@ const FLYERS_READY = true;
 // Linked accounts: these emails share one profile, going list and car seats (Steven, 15 Nov). Needs the rule change for going/profiles
 // (owners may write them). Keep false until Steven says "firestore rules updated" and the live rules match the file; then run the data move.
 const LINKS_READY = true;
+// Description edits (descs/{id}) need a new Firestore rule. Keep false until Steven says "firestore rules updated" and the live rules match the file.
+const DESC_READY = false;
 const LINKS = { "steven.demei@gmail.com": "visaodojogo@gmail.com", "congocapoeira@gmail.com": "visaodojogo@gmail.com", "capoeirabrasilbelgium@gmail.com": "visaodojogo@gmail.com" };
 const PUSH_ON = () => PUSH_READY && !!window.CCC_VAPID && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 let MSG = null;
@@ -137,11 +139,11 @@ async function messaging() {
 const devId = () => { try { let d = localStorage.getItem("ccc.dev"); if (!d) { d = Math.random().toString(36).slice(2, 12); localStorage.setItem("ccc.dev", d); } return d; } catch { return "web"; } };
 function makeHub(user, owner) {
   const real = lc(user.email); const me = LINKS_READY && LINKS[real] ? LINKS[real] : real; const ids = LINKS_READY && (LINKS[real] || Object.values(LINKS).includes(real)) ? [...new Set([...Object.keys(LINKS), ...Object.values(LINKS)])] : [real]; const subs = [];
-  const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {}, sugg: [], seen: {}, flyers: {} };
+  const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {}, sugg: [], seen: {}, flyers: {}, descs: {} };
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
   return {
-    me, own: e => ids.includes(lc(e)), owner, rulesReady: RULES_READY, flyersReady: FLYERS_READY,
+    me, own: e => ids.includes(lc(e)), owner, rulesReady: RULES_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
     watch(cb) {
       fire = () => cb(st);
       on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; fire(); });
@@ -151,12 +153,14 @@ function makeHub(user, owner) {
       const sq = owner ? F.collection(fs, "suggestions") : F.query(F.collection(fs, "suggestions"), F.where("by", "==", real));
       on(sq, qs => { st.sugg = qs.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(b.at).localeCompare(String(a.at))); fire(); });
       if (FLYERS_READY) on(F.collection(fs, "flyers"), qs => { st.flyers = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
+      if (DESC_READY) on(F.collection(fs, "descs"), qs => { st.descs = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       if (owner) {
         on(F.collection(fs, "going"), qs => { st.allGoing = qs.docs.map(d => ({ email: d.id, events: d.data().events || [] })); fire(); });
         on(F.collection(fs, "seen"), qs => { st.seen = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
         on(F.collection(fs, "profiles"), qs => { st.profiles = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       }
     },
+    setDesc: (id, text) => F.setDoc(F.doc(fs, "descs", String(id)), { text: String(text).slice(0, 4000), by: real, at: new Date().toISOString(), synced: false }),
     flyerImg: async id => { const d = await F.getDoc(F.doc(fs, "flyerImg", String(id))); return d.exists() ? d.data().img : null; },
     setFlyer: async (id, img) => { id = String(id); const at = new Date().toISOString(); await F.setDoc(F.doc(fs, "flyerImg", id), { img, at, by: real }); await F.setDoc(F.doc(fs, "flyers", id), { has: true, read: false, by: real, at, imgAt: at }, { merge: true }); },
     delFlyer: async id => { id = String(id); await F.deleteDoc(F.doc(fs, "flyerImg", id)); await F.setDoc(F.doc(fs, "flyers", id), { has: false, imgRemovedAt: new Date().toISOString() }, { merge: true }); },
