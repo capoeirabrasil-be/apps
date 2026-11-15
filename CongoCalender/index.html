@@ -1590,7 +1590,7 @@ document.addEventListener("click", ev => {
   const b = ev.target.closest?.("[data-flyuse],[data-flykeep]"); if (!b) return;
   const id = b.dataset.flyuse || b.dataset.flykeep, f = HUBST.flyers?.[id]; if (!f) return; b.disabled = true;
   const txt = f.info?.t?.[f.info.src] || Object.values(f.info?.t || {})[0] || "";
-  (b.dataset.flyuse ? HUB.setDesc(id, txt) : Promise.resolve()).then(() => HUB.flyerUsed(id)).then(() => hubRender()).catch(() => { b.disabled = false; alert(t("hubErr")); });
+  (b.dataset.flyuse ? HUB.setDesc(id, txt, f.info?.src && f.info.t?.[f.info.src] === txt ? { src: f.info.src, t: f.info.t } : null) : Promise.resolve()).then(() => HUB.flyerUsed(id)).then(() => hubRender()).catch(() => { b.disabled = false; alert(t("hubErr")); });
 });
 document.addEventListener("click", ev => {
   const b = ev.target.closest?.("[data-flyaddr],[data-flyaddrkeep]"); if (!b) return;
@@ -2050,7 +2050,7 @@ function maybeNews() {
 }
 startConfirm();
 </script>
-<script type="module" src="ccc-web.js?v=47c1f9df1c"></script>
+<script type="module" src="ccc-web.js?v=880b858e09"></script>
 <script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>

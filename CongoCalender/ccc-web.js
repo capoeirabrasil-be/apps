@@ -163,7 +163,7 @@ function makeHub(user, owner) {
         on(F.collection(fs, "profiles"), qs => { st.profiles = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       }
     },
-    setDesc: (id, text) => F.setDoc(F.doc(fs, "descs", String(id)), { text: String(text).slice(0, 4000), by: real, at: new Date().toISOString(), synced: false }, { merge: true }),
+    setDesc: (id, text, extra) => F.setDoc(F.doc(fs, "descs", String(id)), { text: String(text).slice(0, 4000), by: real, at: new Date().toISOString(), synced: false, ...(extra ? { src: extra.src, t: extra.t } : { src: F.deleteField(), t: F.deleteField() }) }, { merge: true }),
     setLoc: (id, loc) => F.setDoc(F.doc(fs, "descs", String(id)), { loc: String(loc).slice(0, 300), by: real, at: new Date().toISOString(), synced: false }, { merge: true }),
     flyerLocUsed: id => F.setDoc(F.doc(fs, "flyers", String(id)), { locUsed: true }, { merge: true }),
     flyerImg: async id => { const d = await F.getDoc(F.doc(fs, "flyerImg", String(id))); return d.exists() ? d.data().img : null; },
