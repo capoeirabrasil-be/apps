@@ -121,10 +121,10 @@ const RULES_READY = true;
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
 const PUSH_READY = true;
 // Flyers need new Firestore rules (flyers + flyerImg). Keep false until Steven says "firestore rules updated" and live rules match the file.
-const FLYERS_READY = false;
+const FLYERS_READY = true;
 // Linked accounts: these emails share one profile, going list and car seats (Steven, 15 Nov). Needs the rule change for going/profiles
 // (owners may write them). Keep false until Steven says "firestore rules updated" and the live rules match the file; then run the data move.
-const LINKS_READY = false;
+const LINKS_READY = true;
 const LINKS = { "steven.demei@gmail.com": "visaodojogo@gmail.com", "congocapoeira@gmail.com": "visaodojogo@gmail.com", "capoeirabrasilbelgium@gmail.com": "visaodojogo@gmail.com" };
 const PUSH_ON = () => PUSH_READY && !!window.CCC_VAPID && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 let MSG = null;
