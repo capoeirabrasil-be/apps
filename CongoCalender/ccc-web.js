@@ -122,6 +122,10 @@ const RULES_READY = true;
 const PUSH_READY = true;
 // Flyers need new Firestore rules (flyers + flyerImg). Keep false until Steven says "firestore rules updated" and live rules match the file.
 const FLYERS_READY = false;
+// Linked accounts: these emails share one profile, going list and car seats (Steven, 15 Nov). Needs the rule change for going/profiles
+// (owners may write them). Keep false until Steven says "firestore rules updated" and the live rules match the file; then run the data move.
+const LINKS_READY = false;
+const LINKS = { "steven.demei@gmail.com": "visaodojogo@gmail.com", "congocapoeira@gmail.com": "visaodojogo@gmail.com", "capoeirabrasilbelgium@gmail.com": "visaodojogo@gmail.com" };
 const PUSH_ON = () => PUSH_READY && !!window.CCC_VAPID && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 let MSG = null;
 async function messaging() {
@@ -132,19 +136,19 @@ async function messaging() {
 }
 const devId = () => { try { let d = localStorage.getItem("ccc.dev"); if (!d) { d = Math.random().toString(36).slice(2, 12); localStorage.setItem("ccc.dev", d); } return d; } catch { return "web"; } };
 function makeHub(user, owner) {
-  const me = lc(user.email); const subs = [];
+  const real = lc(user.email); const me = LINKS_READY && LINKS[real] ? LINKS[real] : real; const ids = LINKS_READY ? [real, me] : [real]; const subs = [];
   const st = { going: [], profile: {}, cars: [], allGoing: [], profiles: {}, sugg: [], seen: {}, flyers: {} };
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
   return {
-    me, owner, rulesReady: RULES_READY, flyersReady: FLYERS_READY,
+    me, own: e => ids.includes(lc(e)), owner, rulesReady: RULES_READY, flyersReady: FLYERS_READY,
     watch(cb) {
       fire = () => cb(st);
       on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; fire(); });
       on(F.doc(fs, "profiles", me), s => { st.profile = s.exists() ? s.data() : {}; st.profileLoaded = true; fire(); });
       on(F.collection(fs, "cars"), qs => { st.cars = qs.docs.map(d => ({ id: d.id, ...d.data() })); fire(); });
       // suggestions/{id} {text, by, byName, at, status: new|ask|answered|go|done|nogo, question, reply}: members see their own, owners all.
-      const sq = owner ? F.collection(fs, "suggestions") : F.query(F.collection(fs, "suggestions"), F.where("by", "==", me));
+      const sq = owner ? F.collection(fs, "suggestions") : F.query(F.collection(fs, "suggestions"), F.where("by", "==", real));
       on(sq, qs => { st.sugg = qs.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(b.at).localeCompare(String(a.at))); fire(); });
       if (FLYERS_READY) on(F.collection(fs, "flyers"), qs => { st.flyers = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       if (owner) {
@@ -154,13 +158,13 @@ function makeHub(user, owner) {
       }
     },
     flyerImg: async id => { const d = await F.getDoc(F.doc(fs, "flyerImg", String(id))); return d.exists() ? d.data().img : null; },
-    setFlyer: async (id, img) => { id = String(id); const at = new Date().toISOString(); await F.setDoc(F.doc(fs, "flyerImg", id), { img, at, by: me }); await F.setDoc(F.doc(fs, "flyers", id), { has: true, read: false, by: me, at, imgAt: at }, { merge: true }); },
+    setFlyer: async (id, img) => { id = String(id); const at = new Date().toISOString(); await F.setDoc(F.doc(fs, "flyerImg", id), { img, at, by: real }); await F.setDoc(F.doc(fs, "flyers", id), { has: true, read: false, by: real, at, imgAt: at }, { merge: true }); },
     delFlyer: async id => { id = String(id); await F.deleteDoc(F.doc(fs, "flyerImg", id)); await F.setDoc(F.doc(fs, "flyers", id), { has: false, imgRemovedAt: new Date().toISOString() }, { merge: true }); },
-    suggest: (text, byName, kind, shots) => F.addDoc(F.collection(fs, "suggestions"), { text: String(text).slice(0, 2000), by: me, byName: String(byName || "").slice(0, 80), at: new Date().toISOString(), status: "new", kind: kind === "bug" || kind === "feedback" ? kind : "idea", ...((kind === "bug" || kind !== "feedback") && Array.isArray(shots) && shots.length ? { shots: shots.filter(x => typeof x === "string" && x.startsWith("data:image/")).slice(0, 3) } : {}) }),
+    suggest: (text, byName, kind, shots) => F.addDoc(F.collection(fs, "suggestions"), { text: String(text).slice(0, 2000), by: real, byName: String(byName || "").slice(0, 80), at: new Date().toISOString(), status: "new", kind: kind === "bug" || kind === "feedback" ? kind : "idea", ...((kind === "bug" || kind !== "feedback") && Array.isArray(shots) && shots.length ? { shots: shots.filter(x => typeof x === "string" && x.startsWith("data:image/")).slice(0, 3) } : {}) }),
     sugReply: (id, reply) => F.updateDoc(F.doc(fs, "suggestions", id), { reply: String(reply).slice(0, 2000), status: "answered", repliedAt: new Date().toISOString() }),
     sugSeen: (id, field) => F.updateDoc(F.doc(fs, "suggestions", id), { [field === "seenNogo" ? "seenNogo" : "seenBy"]: true }),
     sugResubmit: (id, text) => F.updateDoc(F.doc(fs, "suggestions", id), { text: String(text).slice(0, 2000), status: "new", resubmittedAt: new Date().toISOString(), seenNogo: true }),
-    sugSet: (id, data) => F.updateDoc(F.doc(fs, "suggestions", id), { ...data, by_owner: me, changedAt: new Date().toISOString() }),
+    sugSet: (id, data) => F.updateDoc(F.doc(fs, "suggestions", id), { ...data, by_owner: real, changedAt: new Date().toISOString() }),
     setGoing: (id, yes) => F.setDoc(F.doc(fs, "going", me), { events: yes ? F.arrayUnion(id) : F.arrayRemove(id), at: new Date().toISOString() }, { merge: true }),
     setProfile: p => F.setDoc(F.doc(fs, "profiles", me), { first: String(p.first || "").slice(0, 60), last: String(p.last || "").slice(0, 60), capo: String(p.capo || "").slice(0, 60), at: new Date().toISOString() }),
     async setCar(event, seats, driverName, from = "", leave = "") {
@@ -198,16 +202,16 @@ function makeHub(user, owner) {
         const { M, m } = await messaging();
         const token = await M.getToken(m, { vapidKey: window.CCC_VAPID, serviceWorkerRegistration: reg });
         if (!token) throw new Error("no token");
-        await F.setDoc(F.doc(fs, "pushTokens", me), { devices: { [devId()]: { token, at: new Date().toISOString(), ua: navigator.userAgent.slice(0, 160), lang: String(lang || "en").slice(0, 2) } } }, { merge: true });
+        await F.setDoc(F.doc(fs, "pushTokens", real), { devices: { [devId()]: { token, at: new Date().toISOString(), ua: navigator.userAgent.slice(0, 160), lang: String(lang || "en").slice(0, 2) } } }, { merge: true });
         try { localStorage.setItem("ccc.push", "on"); } catch {}
       },
       async disable() {
         try { const { M, m } = await messaging(); await M.deleteToken(m); } catch {}
-        await F.updateDoc(F.doc(fs, "pushTokens", me), { [`devices.${devId()}`]: F.deleteField() }).catch(() => {});
+        await F.updateDoc(F.doc(fs, "pushTokens", real), { [`devices.${devId()}`]: F.deleteField() }).catch(() => {});
         try { localStorage.setItem("ccc.push", "off"); } catch {}
       },
     },
-    requestRefresh: () => F.setDoc(F.doc(fs, "refresh", "request"), { at: new Date().toISOString(), by: me, done: false }),
+    requestRefresh: () => F.setDoc(F.doc(fs, "refresh", "request"), { at: new Date().toISOString(), by: real, done: false }),
   };
 }
 

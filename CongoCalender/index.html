@@ -850,7 +850,7 @@ async function shrinkShot(file, maxDim = 1280, cap = 240000) {
 document.addEventListener("click", ev => { const i = ev.target.closest?.("img[data-shot]"); if (i) i.classList.toggle("big"); });
 function sugBox() {
   if (!HUB || !HUB.rulesReady) return "";
-  const mine = (HUBST.sugg || []).filter(x => x.by === HUB.me && memberSees(x));
+  const mine = (HUBST.sugg || []).filter(x => (HUB.own ? HUB.own(x.by) : x.by === HUB.me) && memberSees(x));
   const li = x => {
     const ed = SG_OPEN && SG_OPEN.id === x.id ? SG_OPEN.mode : "";
     const nogo = x.status === "nogo";
@@ -931,7 +931,7 @@ function suggestPops() {
   if (!HUB || !HUB.rulesReady || $("#news").open || $("#remind").open || $("#sheet").open) return;
   const a = HUBST.sugg || [];
   const x = IS_OWNER ? a.find(x => x.status === "done" && x.kind !== "feedback" && !x.seenOwner && !POP_SHOWN.has(x.id))
-    : a.find(x => x.by === HUB.me && !POP_SHOWN.has(x.id) && ((x.status === "done" && x.kind !== "feedback" && !x.seenBy) || (x.status === "nogo" && x.seenNogo === false)));
+    : a.find(x => (HUB.own ? HUB.own(x.by) : x.by === HUB.me) && !POP_SHOWN.has(x.id) && ((x.status === "done" && x.kind !== "feedback" && !x.seenBy) || (x.status === "nogo" && x.seenNogo === false)));
   if (!x) return;
   POP_SHOWN.add(x.id);
   const nogo = x.status === "nogo";
@@ -1008,8 +1008,8 @@ function evRow(e) {
 function viewUpcoming() {
   const up = shown().filter(e => e.E >= TODAY).slice(0, 4);
   if (!up.length) return `<p class="empty">${t("noUpcoming")}</p>`;
-  const ask = HUB?.rulesReady ? (HUBST.sugg || []).filter(x => x.by === HUB.me && x.status === "ask").length : 0;
-  const resub = HUB?.rulesReady ? (HUBST.sugg || []).filter(x => x.by === HUB.me && x.status === "nogo" && memberSees(x)).map(daysLeft) : [];
+  const ask = HUB?.rulesReady ? (HUBST.sugg || []).filter(x => (HUB.own ? HUB.own(x.by) : x.by === HUB.me) && x.status === "ask").length : 0;
+  const resub = HUB?.rulesReady ? (HUBST.sugg || []).filter(x => (HUB.own ? HUB.own(x.by) : x.by === HUB.me) && x.status === "nogo" && memberSees(x)).map(daysLeft) : [];
   const askBar = (ask ? `<a class="note sugnote" href="#howto">💬 ${t("sugAskBar")}</a>` : "") + (resub.length ? `<a class="note sugnote" href="#howto">${t("sugGoneBar", { n: Math.min(...resub) })}</a>` : "");
   return askBar + `<div class="ownbar">${addBtn()}<button class="addbtn alt igbtn" data-act-ig="1" ${CAN_EXPORT ? "" : "hidden"}>⬇ ${t("igExport")}</button></div>` + `<section class="next" aria-label="${t("nextEvents")}"><div class="lbl"><span>${t("nextEvents")}</span></div>` + up.map((n, i) => {
     const inDays = Math.round((n.S - TODAY) / 864e5);
@@ -1977,7 +1977,7 @@ function maybeNews() {
 }
 startConfirm();
 </script>
-<script type="module" src="ccc-web.js?v=f2957af9eb"></script>
+<script type="module" src="ccc-web.js?v=3f591dc2c8"></script>
 <script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>
