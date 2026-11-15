@@ -1327,7 +1327,7 @@ function render() {
   $("#langmenu").innerHTML = LANGS.map(([k, name, fl]) => `<li><button role="option" aria-checked="${k === LANG}" aria-selected="${k === LANG}" data-lang="${k}" lang="${k}"><span class="fl">${fl}</span>${name}</button></li>`).join("");
   const d = D(SNAPSHOT_AT);
   $("#syncText").textContent = t("asOf", { d: `${d.getUTCDate()} ${monShort(d)}` });
-  $("#mast").classList.toggle("compact", main.scrollTop > 40);
+  $("#mast").classList.remove("compact");
   document.querySelectorAll(".tabs button").forEach(b => b.dataset.tab === state.tab ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   document.querySelector(".tabs").hidden = BLOCKED;
   if (BLOCKED) { main.innerHTML = `<div class="inner"><section class="set"><h3>${t("blockedH")}</h3><p>${t("blockedP")}</p></section></div>`; return; }
@@ -1673,7 +1673,6 @@ let tx = null;
 main.addEventListener("touchstart", e => { if (state.tab === "agenda" && state.sub === "month") tx = e.touches[0].clientX; }, { passive: true });
 main.addEventListener("touchend", e => { if (tx == null) return; const dx = e.changedTouches[0].clientX - tx; tx = null; if (Math.abs(dx) > 60) { const m = state.month; state.month = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + (dx < 0 ? 1 : -1), 1)); state.sel = null; render(); } });
 
-main.addEventListener("scroll", () => { const m = $("#mast"); if (main.scrollTop > 40) m.classList.add("compact"); else if (main.scrollTop < 4) m.classList.remove("compact"); }, { passive: true });
 render();
 
 // ---- Confirmations (shared; only the owner can change them) -------------------------------
