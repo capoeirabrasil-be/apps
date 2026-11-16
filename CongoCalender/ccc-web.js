@@ -15,6 +15,8 @@ const OFFLINE = (() => { try { return localStorage.getItem("ccc.offline"); } cat
 let fs;
 if (OFFLINE === "on") { try { fs = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); } catch { fs = F.getFirestore(app); } }
 else { fs = F.getFirestore(app); if (OFFLINE === "clear") { try { await F.clearIndexedDbPersistence(fs); localStorage.removeItem("ccc.offline"); } catch {} } }
+// Tell the service worker whether this phone has "Available offline" on: then the app page opens from the phone's copy first and refreshes in the background.
+try { if (OFFLINE === "on") caches.open("ccc-flag").then(c => c.put("ccc-flag-on", new Response("1"))); else caches.delete("ccc-flag"); } catch {}
 window.cccOffline = {
   on: OFFLINE === "on",
   set(on) { try { localStorage.setItem("ccc.offline", on ? "on" : "clear"); } catch {} location.reload(); },
@@ -245,9 +247,12 @@ function makeHub(user, owner) {
 
 async function startApp(user) {
   show(`<p class="gwait">${g("wait")}</p>`);
-  let data, calAt = "";
+  let data, calAt = "", fromCache = false;
   try {
-    const snap = await F.getDoc(F.doc(fs, "cal", "main"));
+    // Available offline: start from the phone's copy straight away (no waiting for the network); the update follows in the background (see fresh() below).
+    let snap = null;
+    if (OFFLINE === "on") { try { const c = await F.getDocFromCache(F.doc(fs, "cal", "main")); if (c.exists()) { snap = c; fromCache = true; } } catch {} }
+    if (!snap) snap = await F.getDoc(F.doc(fs, "cal", "main"));
     if (!snap.exists()) throw Object.assign(new Error("empty"), { code: "not-found" });
     data = JSON.parse(snap.data().json); calAt = snap.data().at || "";
   } catch (e) {
@@ -258,14 +263,23 @@ async function startApp(user) {
   // Owner = may list the access collection (rules allow that for the owner only).
   // Asked of the server (a cached answer would wrongly say yes); offline, the last server answer for this email is used.
   let owner = false; const ok = "ccc.owner." + lc(user.email);
-  try { await F.getDocsFromServer(F.query(F.collection(fs, "access"), F.limit(1))); owner = true; try { localStorage.setItem(ok, "1"); } catch {} }
-  catch (e) { if (e?.code === "permission-denied") { try { localStorage.removeItem(ok); } catch {} } else { try { owner = localStorage.getItem(ok) === "1"; } catch {} } }
+  const askOwner = async () => {
+    try { await F.getDocsFromServer(F.query(F.collection(fs, "access"), F.limit(1))); try { localStorage.setItem(ok, "1"); } catch {} return true; }
+    catch (e) { if (e?.code === "permission-denied") { try { localStorage.setItem(ok, "0"); } catch {} return false; } try { return localStorage.getItem(ok) === "1"; } catch { return false; } }
+  };
+  let known = null; try { known = localStorage.getItem(ok); } catch {}
+  if (OFFLINE === "on" && (known === "1" || known === "0")) {
+    // Offline first: use the last known answer now, check it with the server in the background (reload if it changed).
+    owner = known === "1";
+    askOwner().then(o => { if (o !== owner && navigator.onLine) location.reload(); });
+  } else owner = await askOwner();
   window.__CCC = data;
   // Available offline: the calendar was read from the phone's copy when there was no internet. As soon as the
   // phone is online again (or the app comes back to the front), fetch the server copy and reload if it is newer.
   if (OFFLINE === "on") {
     const fresh = async () => { if (!navigator.onLine) return; try { const s = await F.getDocFromServer(F.doc(fs, "cal", "main")); if (s.exists() && (s.data().at || "") !== calAt) location.reload(); } catch {} };
     addEventListener("online", fresh);
+    if (fromCache) fresh();   // the calendar above came from the phone's copy: fetch the server copy now, in the background
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") fresh(); });
   }
   const HUB = makeHub(user, owner);

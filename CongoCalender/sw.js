@@ -1,10 +1,14 @@
 // CCC service worker. Page: network first (fresh daily data), offline fallback. Images/fonts/libs: cache first.
-const C = "ccc-907d21637d";
+const C = "ccc-0e58936564";
 self.addEventListener("install", e => { self.skipWaiting(); e.waitUntil(caches.open(C).then(c => c.addAll(["./", "img/icon-192.png"]))); });
 self.addEventListener("activate", e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener("fetch", e => {
   const r = e.request; if (r.method !== "GET") return;
   if (r.mode === "navigate") { const app = new URL("./", self.registration.scope).href === new URL(".", r.url).href;
+    // "Available offline" on: open from the phone's copy at once and refresh that copy in the background (the new version shows at the next open).
+    if (app) { e.respondWith((async () => { const on = await caches.open("ccc-flag").then(f => f.match("ccc-flag-on")).catch(() => null); const hit = on && await caches.open(C).then(c => c.match("./")).catch(() => null);
+      if (hit) { e.waitUntil(fetch(r).then(res => res.ok && caches.open(C).then(c => c.put("./", res))).catch(() => {})); return hit; }
+      return fetch(r).then(res => { const cp = res.clone(); caches.open(C).then(c => c.put("./", cp)); return res; }).catch(() => caches.match("./")); })()); return; }
     e.respondWith(fetch(r).then(res => { if (app) { const cp = res.clone(); caches.open(C).then(c => c.put("./", cp)); } return res; }).catch(() => app ? caches.match("./") : caches.match(r))); return; }
   const u = new URL(r.url);
   if (u.origin !== location.origin && !/(^|\.)(gstatic\.com|googleapis\.com|cdnjs\.cloudflare\.com)$/.test(u.hostname)) return;
