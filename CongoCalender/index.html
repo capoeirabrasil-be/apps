@@ -1330,7 +1330,7 @@ function viewHowto() {
   const S = [["📅", "up"], ["🗓️", "ag"], ["📄", "ev"], ["🙋", "go", 1], ["🚗", "car", 1], ["👤", "prof", 1], ["🌦️", "wx"], ["📊", "st"], ["🌐", "set"], ["📶", "off", 1], ...(HUB?.rulesReady ? [["💡", "sug", 1]] : [])];
   const O = [["🛡️", "admin"], ["📣", "share"], ["👥", "join", 1], ["🚘", "ocar", 1], ["✅", "conf"], ["🖼️", "flyer"], ["📷", "flyup"], ["✏️", "descedit"], ["📸", "ig"], ["🗑️", "del"], ["🧩", "afeat", 1], ["✉️", "inv"], ["🔄", "ref"], ...(HUB?.rulesReady ? [["🗳️", "osug", 1]] : [])];
   const sec = ([ic, k, web]) => web && !HUB ? "" : `<section><span class="ic">${ic}</span><h3>${t("hw_" + k + "_h")}</h3><p>${t("hw_" + k + "_p")}${k === "off" ? " " + t("offFirstNote") : ""}${k === "share" ? `<br><button class="btn alt" type="button" style="margin-top:8px" data-sharecopy="https://apps.capoeirabrasil.be/CongoCalender/info/">${t("shareCopy")}</button>` : ""}</p></section>`;
-  return `<h2 class="page-h">${t("howH")}</h2><p class="note" style="margin-top:0">${t("howSub")}</p>${vgBox()}<div class="howto">${S.map(sec).join("")}
+  return `<h2 class="page-h">${t("howH")}</h2><p class="note" style="margin-top:0">${t("howSub")}</p>${vgBox()}<div class="howto"><section><span class="ic">📲</span><h3>${t("install")}</h3><ol style="margin:6px 0 0 18px;padding:0"><li>${t("installIos")}</li><li>${t("installAndroid")}</li></ol></section>${S.map(sec).join("")}
     ${IS_OWNER ? `<h2 class="sub">${t("howOwner")}</h2>${vgOrgBox()}${O.map(sec).join("")}` : ""}</div>${sugBox()}`;
 }
 // ---- Available offline: Minimal (calendar + a few tabs) or Maximum (the complete app, incl. video guides) ----
