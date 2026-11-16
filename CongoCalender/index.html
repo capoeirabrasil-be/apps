@@ -1506,7 +1506,7 @@ function sugArchive() {
   return [groups[2], groups[1], groups[0]].map(([k, hk, list, when]) => isOff() && !isMax() ? `<section class="set"><h3>${t(hk)}</h3><p class="hint">📴 ${t("offNoNet")}</p></section>` : `<section class="set"><h3 class="tgl"><button type="button" data-arctgl="${k}" aria-expanded="${ARC_OPEN[k]}">${t(hk)} (${list.length}) <span class="chev">${ARC_OPEN[k] ? "▾" : "▸"}</span></button></h3>${ARC_OPEN[k] ? (list.length ? `<ul class="suglist">${list.sort(byDate).map(x => `<li><small>${esc(x.byName || dispName(x.by))} · ${when(x)}</small><p>${esc(x.text)}</p>${shotsHtml(x)}</li>`).join("")}</ul>` : `<p class="hint">${t("sgNone")}</p>`) : ""}</section>`).join("");
 }
 // ---- Public calendar check: hourly, Claude compares the public Grupo Capoeira Brasil calendar with ours. Proposals live in flyers/pub-<id> (no new rules). The owner picks; the next hourly run applies it. ----
-const PUB_OPEN = { new: true, diff: true };
+const PUB_OPEN = { new: false, diff: false };
 const todayISO = () => new Date().toISOString().slice(0, 10);
 function pubSection() {
   if (!HUB?.flyersReady || !IS_OWNER) return "";
@@ -1516,7 +1516,7 @@ function pubSection() {
     const L = all.filter(x => x[1].kind === kd);
     return `<section class="set"><h3 class="tgl"><button type="button" data-pubtgl="${kd}" aria-expanded="${PUB_OPEN[kd]}">🌐 ${t("pubH")} – ${t(hk)} (${L.length}) <span class="chev">${PUB_OPEN[kd] ? "▾" : "▸"}</span></button></h3>${PUB_OPEN[kd] ? (!L.length ? `<p class="hint">${t("pubNone")}</p>` : `<p>${t("pubSub")}</p><ul class="invlist">${L.map(([k, v]) => `<li style="display:block"><div><b>${esc(v.title)}</b><small>${v.start ? fmtDay(v.start) : ""}${v.loc ? " · " + esc(v.loc) : ""}</small></div>
     ${kd === "diff" ? `<details><summary>${t("pubOurs")}</summary><p class="hint" style="white-space:pre-wrap">${cut(v.ourDesc) || "–"}</p></details>` : ""}
-    ${v.desc ? `<details${kd === "diff" ? " open" : ""}><summary>${t("pubTheirs")}</summary><p class="hint" style="white-space:pre-wrap">${cut(v.desc)}</p></details>` : ""}
+    ${v.desc ? `<details><summary>${t("pubTheirs")}</summary><p class="hint" style="white-space:pre-wrap">${cut(v.desc)}</p></details>` : ""}
     <div class="invbtns">${kd === "new" ? `<button class="btn" type="button" data-pub="${k}" data-ch="add">✅ ${t("pubKeepNew")}</button><button class="btn alt" type="button" data-pub="${k}" data-ch="discard">🗑 ${t("pubDiscard")}</button>` : `<button class="btn" type="button" data-pub="${k}" data-ch="update">🔄 ${t("pubUpdate")}</button><button class="btn alt" type="button" data-pub="${k}" data-ch="keep">✋ ${t("pubKeep")}</button>`}</div></li>`).join("")}</ul>`) : ""}</section>`;
   }).join("");
 }
