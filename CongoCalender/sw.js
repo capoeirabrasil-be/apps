@@ -1,5 +1,5 @@
 // CCC service worker. Page: network first (fresh daily data), offline fallback. Images/fonts/libs: cache first.
-const C = "ccc-ba7c8912d7";
+const C = "ccc-3973615ea8";
 self.addEventListener("install", e => { self.skipWaiting(); e.waitUntil(caches.open(C).then(c => c.addAll(["./", "img/icon-192.png"]))); });
 self.addEventListener("activate", e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener("fetch", e => {
