@@ -474,6 +474,7 @@ h1 span { font: 500 13px/1.3 var(--body); color: var(--on-panel-muted); text-tra
 .sugnote { display: block; text-decoration: none; color: inherit; margin: 0 0 12px; border-color: var(--orange); }
 .sgq.no { border-left-color: #C8443A; }
 .invlist small.invnm { color: var(--text); font-weight: 500; }
+.invlist small.phone { color: #ff4fa3; font-weight: 700; }
 .invlist small.seen { display: block; color: var(--ok); }
 .invlist small.seen.old, .invlist small.seen.never { color: var(--muted); }
 .sgcount { color: var(--orange) !important; font-weight: 600; }
@@ -881,7 +882,7 @@ const roleSel = (attr, id, cur, ph) => { cur = roleKey(cur); return `<label clas
 const isGoing = e => !!HUB && !IS_OWNER && HUBST.going.includes(e.id);   // members only: the owner's "going" is the Confirmed mark
 const goBadge = e => !IS_OWNER && isGoing(e) ? `<span class="gobadge">🙋 ${t("goBadge")}</span>` : "";
 const phoneOf = em => { const d = Object.values(HUBST.tokens?.[String(em || "").toLowerCase()]?.devices || {}); return d.map(x => { const u = String(x.ua || ""); const m = /Android[^;)]*;\s*([^;)]+)/.exec(u); return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" + (m && !/^(K|Mobile)$/.test(m[1].trim()) ? " (" + m[1].trim() + ")" : "") : /Windows|Macintosh|Linux/.test(u) ? "Computer" : "?"; }).join(", "); };
-const phoneLine = em => { const p = phoneOf(em); return p ? `<small class="seen">📱 ${esc(p)}</small>` : ""; };
+const phoneLine = em => { const p = phoneOf(em); return p ? `<small class="phone">📱 ${esc(p)}</small>` : ""; };
 const invName = em => { const p = HUBST.profiles?.[String(em || "").toLowerCase()] || {}, c = (p.capo || "").trim(), n = `${p.first || ""} ${p.last || ""}`.trim(); const v = c && n ? `${c} · ${n}` : c || n; return v ? `<small class="invnm">👤 ${esc(v)}</small>` : ""; };
 const dispName = em => { const p = HUBST.profiles[em] || (HUB && em === HUB.me ? HUBST.profile : null) || {}; return (p.capo || "").trim() || `${p.first || ""} ${p.last || ""}`.trim() || em; };
 const myName = () => { const p = HUBST.profile || {}; return (p.capo || "").trim() || `${p.first || ""} ${p.last || ""}`.trim() || ME_NAME || ME_EMAIL; };
@@ -1636,7 +1637,7 @@ function viewAdmin() {
     <label>${t("inviteLang")}<select name="lang" id="invlang">${langList().map(([k, name, fl]) => `<option value="${k}" lang="${k}"${(INV_LANG || LANG) === k ? " selected" : ""}>${fl} ${name}</option>`).join("")}</select></label>
     <p class="ferr" id="inverr" role="alert"></p><div class="actions" style="padding-bottom:14px"><button class="btn" type="submit">✉️ ${t("inviteBtn")}</button><button class="btn alt" type="button" id="invcopy">🔗 ${t("copyLink")}</button></div></form></section>
   <section class="set"><h3 class="tgl"><button type="button" data-invtgl="1" aria-expanded="${INV_OPEN}">${t("invitedH")} (${INVITES.length}) <span class="chev">${INV_OPEN ? "▾" : "▸"}</span></button></h3>${INV_OPEN ? `<p>${t(window.CCC_WEB ? "invitedSubW" : "invitedSub")}</p>
-    ${INVITES.length ? `<ul class="invlist">${INVITES.map(x => `<li class="${x.revoked ? "rev" : ""}"><div><b>${esc(x.email)}</b>${invName(x.email)}<small>${x.revoked ? "⛔ " + t("revokedOn", { d: fmtDay(x.revokedAt) }) : "✉️ " + t("invitedOn", { d: fmtDay(x.at) })}</small>${seenLine(x.email || x.id)}${phoneLine(x.email || x.id)}</div>
+    ${INVITES.length ? `<ul class="invlist">${INVITES.map(x => `<li class="${x.revoked ? "rev" : ""}"><div><b>${esc(x.email)}</b>${invName(x.email)}${phoneLine(x.email || x.id)}<small>${x.revoked ? "⛔ " + t("revokedOn", { d: fmtDay(x.revokedAt) }) : "✉️ " + t("invitedOn", { d: fmtDay(x.at) })}</small>${seenLine(x.email || x.id)}</div>
       <div class="invbtns">${x.revoked ? `<button class="btn alt" data-unrevoke="${x.id}">${t("restore")}</button><button class="btn alt" data-forget="${x.id}" aria-label="${t("forget")}">🗑</button>` : `<button class="btn off" data-revoke="${x.id}">${t("revoke")}</button>`}</div></li>`).join("")}</ul>` : `<p class="empty" style="padding:6px 0 14px">${t("noInvites")}</p>`}` : ""}
   </section>` : ""}
   ${sugAdmin()}
