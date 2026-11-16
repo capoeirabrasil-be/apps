@@ -135,6 +135,8 @@ const RULES_READY = true;
 // Phone push for owners: pushTokens/{email} {devices: {<deviceId>: {token, at, ua, lang}}}. Needs the pushTokens rule
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
 const PUSH_READY = true;
+// Push for regular members too (pushTokens rule changed to isViewer); owners see invitees' phone type. Keep false until Steven says "firestore rules updated" and the live rules match the file.
+const MPUSH_READY = false;
 // Flyers need new Firestore rules (flyers + flyerImg). Keep false until Steven says "firestore rules updated" and live rules match the file.
 const FLYERS_READY = true;
 // Linked accounts: these emails share one profile, going list and car seats (Steven, 15 Nov). Needs the rule change for going/profiles
@@ -171,6 +173,7 @@ function makeHub(user, owner) {
       if (DESC_READY) on(F.collection(fs, "descs"), qs => { st.descs = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       if (owner) {
         on(F.collection(fs, "going"), qs => { st.allGoing = qs.docs.map(d => ({ email: d.id, events: d.data().events || [], roles: d.data().roles || {} })); fire(); });
+        if (MPUSH_READY) on(F.collection(fs, "pushTokens"), qs => { st.tokens = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
         on(F.collection(fs, "seen"), qs => { st.seen = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
         on(F.collection(fs, "profiles"), qs => { st.profiles = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       }
@@ -218,9 +221,9 @@ function makeHub(user, owner) {
     },
     // push.state(): "unsupported" | "install" (iPhone, not opened from the home screen) | "denied" | "on" | "off"
     push: {
-      get ready() { return owner && PUSH_ON(); },
+      get ready() { return (owner || MPUSH_READY) && PUSH_ON(); },
       state() {
-        if (!this.ready) { const ios = /iP(hone|ad|od)/.test(navigator.userAgent); return ios && PUSH_READY && !navigator.standalone ? "install" : "unsupported"; }
+        if (!this.ready) { const ios = /iP(hone|ad|od)/.test(navigator.userAgent); return ios && PUSH_READY && (owner || MPUSH_READY) && !navigator.standalone ? "install" : "unsupported"; }
         if (Notification.permission === "denied") return "denied";
         try { return Notification.permission === "granted" && localStorage.getItem("ccc.push") === "on" ? "on" : "off"; } catch { return "off"; }
       },
