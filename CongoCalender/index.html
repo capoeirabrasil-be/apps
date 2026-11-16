@@ -1234,7 +1234,7 @@ function viewAnalytics() {
   if (IS_OWNER && DB) h += `<section class="card"><h3>🎭 ${t("mapRoleH")}</h3><p class="sub">${t("mapRoleSub")}</p>
     <div class="seg maptoggle" role="group">${["world", "americas", "europe", "benelux"].map(v => `<button data-mapview="${v}" aria-pressed="${state.mapView === v}">${t(v)}</button>`).join("")}</div>
     <div class="mapwrap"><svg id="map2" role="img" aria-label="${t("mapRoleH")}"></svg></div>
-    <div class="maplegend">${[...ROLES, "special"].map(k => roleTag(k)).join(" ")}</div>
+    <div class="maplegend">${ROLES.map(k => roleTag(k)).join(" ")}</div>
     <p class="map-cap" id="mapcap2">${t("tapCity")}</p></section>`;
   const ccOf = Object.fromEntries(evs.map(e => [e.place, e.cc]));
   const byCity = count(evs, e => isCity(e.place) ? e.place : "").map(([k, n]) => ({ label: k, pre: flag(ccOf[k]) + " ", n }));
@@ -1269,7 +1269,7 @@ function drawMap(sid = "map", rm = false) {   // rm: second map, dots are pies p
   const byCC = d3.rollup(evs, v => v.length, e => e.cc);
   const byCity = d3.rollup(evs.filter(e => CITIES[e.place]), v => v.length, e => e.place);
   const roleBy = rm ? d3.rollup(evs.filter(e => CITIES[e.place]), v => { const m = {}; for (const e of v) { const k = roleKey(ROLE_OF[e.id] || "special"); m[k] = (m[k] || 0) + 1; } return m; }, e => e.place) : null;
-  const RK = [...ROLES, "special"];
+  const RK = ROLES;
   const eu = state.mapView === "europe", wd = state.mapView === "world", am = state.mapView === "americas", gl = wd || am;
   const w = 600, h = wd ? 330 : am ? 640 : eu ? 520 : 560;
   const ext = am ? [-125, -56, -34, 52] : eu ? [-6, 37, 30, 57] : [2.4, 49.9, 7.2, 53.2];
@@ -2196,7 +2196,7 @@ function pastRoleBox() {
 function partCard(evs) {
   if (!IS_OWNER || !DB) return "";
   const went = evs.filter(isConf), cnt = {}; for (const e of went) { const k = roleKey(ROLE_OF[e.id] || "special"); cnt[k] = (cnt[k] || 0) + 1; }
-  const keys = [...ROLES, "special"], max = Math.max(1, ...keys.map(k => cnt[k] || 0));
+  const keys = ROLES, max = Math.max(1, ...keys.map(k => cnt[k] || 0));
   const rows = keys.map(k => `<div class="hb"><span class="nm">${esc(roleName(k))}</span><span class="tr"><i style="width:${(cnt[k] || 0) / max * 100}%;background:${ROLE_COLOR[k]}"></i></span><span class="v">${cnt[k] || 0}</span></div>`).join("");
   const yrs = [...new Set(went.map(e => e.S.getUTCFullYear()))].sort();
   const ymax = Math.max(1, ...yrs.map(y => went.filter(e => e.S.getUTCFullYear() === y).length));
