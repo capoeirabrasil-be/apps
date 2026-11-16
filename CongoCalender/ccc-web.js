@@ -149,7 +149,7 @@ function makeHub(user, owner) {
     me, own: e => ids.includes(lc(e)), owner, rulesReady: RULES_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
     watch(cb) {
       fire = () => cb(st);
-      on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; fire(); });
+      on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; st.goingRoles = s.exists() ? s.data().roles || {} : {}; fire(); });
       on(F.doc(fs, "profiles", me), s => { st.profile = s.exists() ? s.data() : {}; st.profileLoaded = true; fire(); });
       on(F.collection(fs, "cars"), qs => { st.cars = qs.docs.map(d => ({ id: d.id, ...d.data() })); fire(); });
       // suggestions/{id} {text, by, byName, at, status: new|ask|answered|go|done|nogo, question, reply}: members see their own, owners all.
@@ -158,7 +158,7 @@ function makeHub(user, owner) {
       if (FLYERS_READY) on(F.collection(fs, "flyers"), qs => { st.flyers = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       if (DESC_READY) on(F.collection(fs, "descs"), qs => { st.descs = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       if (owner) {
-        on(F.collection(fs, "going"), qs => { st.allGoing = qs.docs.map(d => ({ email: d.id, events: d.data().events || [] })); fire(); });
+        on(F.collection(fs, "going"), qs => { st.allGoing = qs.docs.map(d => ({ email: d.id, events: d.data().events || [], roles: d.data().roles || {} })); fire(); });
         on(F.collection(fs, "seen"), qs => { st.seen = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
         on(F.collection(fs, "profiles"), qs => { st.profiles = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       }
@@ -177,6 +177,13 @@ function makeHub(user, owner) {
     sugResubmit: (id, text) => F.updateDoc(F.doc(fs, "suggestions", id), { text: String(text).slice(0, 2000), status: "new", resubmittedAt: new Date().toISOString(), seenNogo: true }),
     sugSet: (id, data) => F.updateDoc(F.doc(fs, "suggestions", id), { ...data, by_owner: real, changedAt: new Date().toISOString() }),
     setGoing: (id, yes) => F.setDoc(F.doc(fs, "going", me), { events: yes ? F.arrayUnion(id) : F.arrayRemove(id), at: new Date().toISOString() }, { merge: true }),
+    setGoingRole: (id, role) => F.setDoc(F.doc(fs, "going", me), { roles: { [String(id)]: role }, at: new Date().toISOString() }, { merge: true }),
+    // Owner-written feature for the build list (no Go / No Go): created as "new" (rules), then set to "go" at once.
+    async adminFeature(text, byName, now) {
+      const at = new Date().toISOString();
+      const r = await F.addDoc(F.collection(fs, "suggestions"), { text: String(text).slice(0, 2000), by: real, byName: String(byName || "").slice(0, 80), at, status: "new", kind: "idea", admin: true, notified: "go" });
+      await F.updateDoc(r, { status: "go", buildNow: !!now, notified: "go", goAt: at, by_owner: real, changedAt: at });
+    },
     setProfile: p => F.setDoc(F.doc(fs, "profiles", me), { first: String(p.first || "").slice(0, 60), last: String(p.last || "").slice(0, 60), capo: String(p.capo || "").slice(0, 60), at: new Date().toISOString() }),
     async setCar(event, seats, driverName, from = "", leave = "") {
       const ref = F.doc(fs, "cars", `${event}~${me}`);
