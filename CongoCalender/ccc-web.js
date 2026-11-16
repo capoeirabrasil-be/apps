@@ -194,8 +194,21 @@ function makeHub(user, owner) {
     chatWatch: (eid, cb) => F.onSnapshot(F.collection(fs, "chats", String(eid), "m"), qs => cb(qs.docs.map(d => ({ id: d.id, ...d.data() }))), () => cb([])),
     async chatSend(eid, text, name, until) {
       eid = String(eid); const at = new Date().toISOString();
-      await F.setDoc(F.doc(fs, "chats", eid), { until, at }, { merge: true });
+      await F.setDoc(F.doc(fs, "chats", eid), { until, at, lastBy: real }, { merge: true });
       await F.addDoc(F.collection(fs, "chats", eid, "m"), { text: String(text).slice(0, 500), by: real, name: String(name || "").slice(0, 60), at, until });
+    },
+    chatMeta(eids, cb) { // unread highlight: latest message time per chat (group: chats/{eid}, private: dms/{eid~email})
+      const m = { g: {}, d: {} }, offs = [], fire = () => cb({ g: { ...m.g }, d: { ...m.d } });
+      const put = (k, id, d) => { if (d) m[k][id] = { at: d.at || "", lastBy: d.lastBy || "" }; else delete m[k][id]; };
+      if (!CHAT_READY && !DM_READY) return () => {};
+      if (eids === null) {
+        if (CHAT_READY) offs.push(F.onSnapshot(F.collection(fs, "chats"), qs => { m.g = {}; qs.docs.forEach(d => put("g", d.id, d.data())); fire(); }, () => {}));
+        if (DM_READY) offs.push(F.onSnapshot(F.collection(fs, "dms"), qs => { m.d = {}; qs.docs.forEach(d => put("d", d.id, d.data())); fire(); }, () => {}));
+      } else eids.forEach(e => {
+        if (CHAT_READY) offs.push(F.onSnapshot(F.doc(fs, "chats", String(e)), s => { put("g", e, s.exists() ? s.data() : null); fire(); }, () => {}));
+        if (DM_READY) offs.push(F.onSnapshot(F.doc(fs, "dms", e + "~" + real), s => { put("d", e + "~" + real, s.exists() ? s.data() : null); fire(); }, () => {}));
+      });
+      return () => offs.forEach(o => { try { o(); } catch {} });
     },
     dmWatch: (did, cb) => F.onSnapshot(F.collection(fs, "dms", String(did), "m"), qs => cb(qs.docs.map(d => ({ id: d.id, ...d.data() }))), () => cb([])),
     async dmSend(did, text, name, until, title) {

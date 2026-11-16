@@ -429,6 +429,11 @@ h1 span { font: 500 13px/1.3 var(--body); color: var(--on-panel-muted); text-tra
 details.sgdone { margin-top: 10px; border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; }
 details.sgdone summary { cursor: pointer; padding: 11px 0; font-weight: 600; }
 details.sgdone[open] summary { border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.ev.cg { outline: 3px solid #ff8a00; outline-offset: 3px; }
+.ev.cp { outline: 3px solid #e0509a; outline-offset: 3px; }
+.ev.cg.cp { outline: 3px solid #e0509a; box-shadow: 0 0 0 6px #ff8a00; outline-offset: 6px; }
+.joinev .wholist li.cprow { background: rgba(224,80,154,.16); border-radius: 8px; box-shadow: inset 3px 0 0 #e0509a; padding-left: 8px; }
+.btn.cg { box-shadow: 0 0 0 2px #ff8a00; } .btn.cp { box-shadow: 0 0 0 2px #e0509a; }
 .chat { border-top: 1px solid var(--line); padding-top: 12px; }
 .chat h3 { margin: 0 0 4px; font-size: 16px; }
 .chat { border-left: 4px solid var(--c); border-radius: 12px; padding: 12px; margin-top: 12px; background: color-mix(in srgb, var(--c) 9%, transparent); }
@@ -919,7 +924,21 @@ let PROF_OK = false;
 document.addEventListener("input", ev => { if (ev.target.closest?.("#profform")) { PROF_OK = false; const m = document.getElementById("profmsg"); if (m) m.textContent = ""; } });
 const canJoinTab = () => IS_OWNER && !!HUB;
 const canGoTab = () => !IS_OWNER && !!HUB?.rulesReady;
-function hubRender() { // re-render after hub data changed, but never while someone is typing
+// Unread chat highlight: orange = group chat, pink = private chat. "Seen" is kept on this device.
+let CMETA = { g: {}, d: {} }, CMETA_OFF = null; const CSEEN = (() => { try { return JSON.parse(localStorage.getItem("ccc.cseen") || "{}"); } catch { return {}; } })();
+const markSeen = (k, at) => { if (!at || (CSEEN[k] || "") >= at) return; CSEEN[k] = at; try { localStorage.setItem("ccc.cseen", JSON.stringify(CSEEN)); } catch {} };
+const unreadG = eid => { const m = CMETA.g[eid]; return !!m && String(m.at || "") > (CSEEN["g:" + eid] || "") && !HUB?.own?.(m.lastBy); };
+const unreadDid = did => { const m = CMETA.d[did]; return !!m && String(m.at || "") > (CSEEN["d:" + did] || "") && !HUB?.own?.(m.lastBy); };
+const unreadP = eid => IS_OWNER ? Object.keys(CMETA.d).some(did => did.split("~")[0] === eid && unreadDid(did)) : !!HUB && unreadDid(eid + "~" + HUB.me);
+const chatCls = e => (unreadG(e.id) ? " cg" : "") + (unreadP(e.id) ? " cp" : "");
+function metaWatch() {
+  if (!HUB?.chatMeta) return;
+  const key = IS_OWNER ? "o" : (HUBST.going || []).slice().sort().join(",");
+  if (CMETA_OFF?.key === key) return;
+  try { CMETA_OFF?.off?.(); } catch {}
+  CMETA_OFF = { key, off: HUB.chatMeta(IS_OWNER ? null : HUBST.going || [], m => { CMETA = m; hubRender(); }) };
+}
+function hubRender() { try { metaWatch(); } catch {} // re-render after hub data changed, but never while someone is typing
   const a = document.activeElement; if (a && a.matches?.("input, textarea")) return;
   const y = main.scrollTop; render(); main.scrollTop = y;
 }
@@ -1134,7 +1153,7 @@ const main = $("#main");
 function evRow(e) {
   const cls = e.E < TODAY ? "past" : e.S <= TODAY ? "now" : "";
   const d = days(e);
-  return `<button class="ev ${cls}${isGoing(e) ? " going" : ""}" style="--c:${TYPE_C[e.type]}" data-id="${e.id}">
+  return `<button class="ev ${cls}${isGoing(e) ? " going" : ""}${chatCls(e)}" style="--c:${TYPE_C[e.type]}" data-id="${e.id}">
     <div class="d"><b>${e.S.getUTCDate()}${d > 1 && e.S.getUTCMonth() === e.E.getUTCMonth() ? `<span>–${e.E.getUTCDate()}</span>` : ""}</b><small>${dowShort(e.S)}</small></div>
     <div><h3>${esc(e.t)}${okBadge(e)}${goBadge(e)}${e.tentative ? ` <span class="tag" style="--c:var(--muted)">${t("maybe")}</span>` : ""}</h3><div class="meta">${flag(e.cc)} ${esc(placeText(e)) || t("placeTBC")}${d > 1 ? ` · ${t("nDays", { n: d })}` : ""}${e.time ? ` · ${e.time}` : ""}</div></div>
     <span class="tag">${cls === "now" ? t("now") : t("t_" + e.type).split(" /")[0]}</span></button>`;
@@ -1394,7 +1413,7 @@ function viewGoing() {
   if (!canGoTab()) return "";
   const list = EVENTS.filter(e => HUBST.going.includes(e.id) && e.E >= TODAY && !e.pending).sort((a, b) => a.S - b.S);
   const chat = HUB?.chatReady || HUB?.dmReady;
-  const card = e => `<div class="joinev">${evRow(e)}${chat ? `<div class="msgallrow"><button class="btn alt" data-chats="${esc(e.id)}">💬 ${t("chatH")}</button></div>` : ""}</div>`;
+  const card = e => `<div class="joinev">${evRow(e)}${chat ? `<div class="msgallrow"><button class="btn alt${chatCls(e)}" data-chats="${esc(e.id)}">💬 ${t("chatH")}</button></div>` : ""}</div>`;
   return `<h2 class="page-h">${t("tab_going")}</h2><p class="note" style="margin-top:0">${t("goingSub")}</p>${list.length ? list.map(card).join("") : `<p class="empty">${t("goingNone")}</p>`}`;
 }
 function openChats(eid, groupOnly) {   // member: the group chat and the private chat of one event, in one box
@@ -1403,8 +1422,8 @@ function openChats(eid, groupOnly) {   // member: the group chat and the private
   const d = document.createElement("dialog"); d.innerHTML = `<div class="sheet"><div class="sheet-top"><span class="tag">CCC</span><h2></h2><button class="x" aria-label="Close">×</button></div><div class="sheet-body"></div></div>`;
   d.querySelector("h2").textContent = e.t;
   const body = d.querySelector(".sheet-body");
-  if (HUB.chatReady) { const c = chatBox(t("chatH"), t("chatSub"), cb => HUB.chatWatch(e.id, cb), (v, nm) => HUB.chatSend(e.id, v, nm, until)); body.append(c.el); unsubs.push(c.unsub); }
-  if (HUB.dmReady && !groupOnly) { const did = e.id + "~" + HUB.me; const c = chatBox(t("dmH"), t("dmSub"), cb => HUB.dmWatch(did, cb), (v, nm) => HUB.dmSend(did, v, nm, until, e.t)); body.append(c.el); unsubs.push(c.unsub); }
+  if (HUB.chatReady) { const c = chatBox(t("chatH"), t("chatSub"), cb => HUB.chatWatch(e.id, cb), (v, nm) => HUB.chatSend(e.id, v, nm, until), "g:" + e.id); body.append(c.el); unsubs.push(c.unsub); }
+  if (HUB.dmReady && !groupOnly) { const did = e.id + "~" + HUB.me; const c = chatBox(t("dmH"), t("dmSub"), cb => HUB.dmWatch(did, cb), (v, nm) => HUB.dmSend(did, v, nm, until, e.t), "d:" + did); body.append(c.el); unsubs.push(c.unsub); }
   const open = document.createElement("div"); open.className = "actions"; open.style.paddingBottom = "12px"; open.innerHTML = `<button class="btn alt" type="button" data-opn="1">${esc(t("goingOpenEv"))}</button>`;
   open.firstChild.onclick = () => { d.close(); openSheet(e.id); };
   body.append(open);
@@ -1414,7 +1433,7 @@ function openChats(eid, groupOnly) {   // member: the group chat and the private
 function viewJoining() {
   if (!canJoinTab()) return "";
   const rows = EVENTS.map(e => ({ e, who: HUBST.allGoing.filter(g => g.events.includes(e.id)).map(g => g.email).filter(x => !isOwnerEmail(x)), cars: HUBST.cars.filter(c => c.event === e.id) })).filter(x => x.who.length || x.cars.length);
-  const card = ({ e, who, cars }) => `<div class="joinev">${evRow(e)}${IS_OWNER && HUB?.msgReady && who.length ? `<div class="msgallrow"><button class="btn alt" data-msgall="${esc(e.id)}">${t("msgAllB", { n: who.length })}</button>${HUB?.chatReady ? `<button class="btn alt" data-gchat="${esc(e.id)}">${t("chatAllB")}</button>` : ""}</div>` : ""}<ul class="wholist">${who.map(x => { const role = (HUBST.allGoing.find(g => g.email === x)?.roles || {})[e.id], car = cars.some(c => c.driver === x || (c.riders || []).includes(x)); return `<li><span>${esc(dispName(x))}${car ? ` <span class="caricon" title="${esc(t("carH"))}">🚗</span>` : ""}</span>${role ? roleTag(role) : ""}${IS_OWNER && HUB?.msgReady && !isOwnerEmail(x) ? `${HUB?.dmReady ? `<button class="btn alt msgbtn" data-dm="${esc(e.id)}|${esc(x)}" aria-label="${esc(t("dmH"))}">💬</button>` : `<button class="btn alt msgbtn" data-invmsg="${esc(x)}">${t("invMsgB")}</button>`}` : ""}</li>`; }).join("")}</ul>
+  const card = ({ e, who, cars }) => `<div class="joinev">${evRow(e)}${IS_OWNER && HUB?.msgReady && who.length ? `<div class="msgallrow"><button class="btn alt" data-msgall="${esc(e.id)}">${t("msgAllB", { n: who.length })}</button>${HUB?.chatReady ? `<button class="btn alt${unreadG(e.id) ? " cg" : ""}" data-gchat="${esc(e.id)}">${t("chatAllB")}</button>` : ""}</div>` : ""}<ul class="wholist">${who.map(x => { const role = (HUBST.allGoing.find(g => g.email === x)?.roles || {})[e.id], car = cars.some(c => c.driver === x || (c.riders || []).includes(x)); return `<li class="${unreadDid(e.id + "~" + x) ? "cprow" : ""}"><span>${esc(dispName(x))}${car ? ` <span class="caricon" title="${esc(t("carH"))}">🚗</span>` : ""}</span>${role ? roleTag(role) : ""}${IS_OWNER && HUB?.msgReady && !isOwnerEmail(x) ? `${HUB?.dmReady ? `<button class="btn alt msgbtn${unreadDid(e.id + "~" + x) ? " cp" : ""}" data-dm="${esc(e.id)}|${esc(x)}" aria-label="${esc(t("dmH"))}">💬</button>` : `<button class="btn alt msgbtn" data-invmsg="${esc(x)}">${t("invMsgB")}</button>`}` : ""}</li>`; }).join("")}</ul>
     ${cars.map(c => `<div class="carl">${t("carsLine", { n: esc(c.driverName || dispName(c.driver)), r: (c.riders || []).length, m: c.seats })}${(c.riders || []).length ? ` · ${c.riders.map(x => esc(dispName(x))).join(", ")}` : ""}${fromHtml(c) ? `<br>${fromHtml(c)}` : ""}</div>`).join("")}</div>`;
   const up = rows.filter(x => x.e.E >= TODAY), past = rows.filter(x => x.e.E < TODAY).reverse();
   return `<h2 class="page-h">${t("joinH")}</h2><p class="note" style="margin-top:0">${t("joinSub")}</p>
@@ -1986,7 +2005,7 @@ async function startConfirm() {
   if (CAN_EXPORT) render();
   try { DB = window.claude?.use ? await window.claude.use("db") : null; } catch { DB = null; }
   try { HUB = window.CCC_WEB && window.claude?.use ? await window.claude.use("hub") : null; } catch { HUB = null; }
-  if (HUB) { let first = true; HUB.watch(st => { HUBST = st; hubRender(); if (!first) { suggestPops(); profilePop(); } }); render(); setTimeout(() => { first = false; maybeNews(); setTimeout(profilePop, 2500); if (isMax()) offLoadBlobs().then(() => offDownloadVideos()); }, 1200); }
+  if (HUB) { let first = true; HUB.watch(st => { HUBST = st; metaWatch(); hubRender(); if (!first) { suggestPops(); profilePop(); } }); render(); setTimeout(() => { first = false; maybeNews(); setTimeout(profilePop, 2500); if (isMax()) offLoadBlobs().then(() => offDownloadVideos()); }, 1200); }
   if (DB) DB.collection("confirmed").onSnapshot(snap => {
     if (snap.metadata.fromCache && !snap.size && CONFIRMED.size) return;
     CONFIRMED = new Set(snap.docs.filter(d => d.data()?.confirmed).map(d => d.id));
@@ -2182,7 +2201,7 @@ const chatLive = e => !e.pending && Date.now() < chatUntil(e).getTime();
 const chatGroupOk = e => !!HUB?.chatReady && (IS_OWNER || isGoing(e));
 const chatDmOk = e => !!HUB?.dmReady && !IS_OWNER && isGoing(e);
 function chatSlot(e) { return chatLive(e) && (chatGroupOk(e) || chatDmOk(e)) ? `<div id="chatslot"></div>` : ""; }
-function chatBox(h, sub, watch, send) {
+function chatBox(h, sub, watch, send, seenKey) {
   const el = document.createElement("section"); el.className = "chat " + (h === t("dmH") ? "priv" : "grp");
   el.innerHTML = `<h3>💬 ${esc(h)}</h3><p class="hint">${esc(sub)}</p><div class="chatlist" role="log" aria-live="polite"></div><form class="chatform"><input maxlength="500" autocomplete="off" aria-label="${esc(t("chatPh"))}" placeholder="${esc(t("chatPh"))}"><button class="btn" type="submit">${esc(t("msgSend"))}</button></form>`;
   const list = el.querySelector(".chatlist");
@@ -2190,6 +2209,7 @@ function chatBox(h, sub, watch, send) {
     items = items.sort((a, b) => String(a.at).localeCompare(String(b.at))).slice(-200);
     list.innerHTML = items.length ? items.map(m => `<div class="cm${HUB.own?.(m.by) ? " mine" : ""}"><b>${esc(m.name || "")}</b> <small>${esc(fmtDay(m.at))} ${esc(String(m.at).slice(11, 16))}</small><div>${esc(m.text)}</div></div>`).join("") : `<p class="empty">${esc(t("chatNone"))}</p>`;
     list.scrollTop = list.scrollHeight;
+    if (seenKey && items.length) { markSeen(seenKey, String(items[items.length - 1].at)); if (!el.__s) { el.__s = 1; } clearTimeout(el.__t); el.__t = setTimeout(hubRender, 400); }
   };
   el.querySelector("form").onsubmit = ev => {
     ev.preventDefault(); const i = ev.target.elements[0], v = i.value.trim(); if (!v) return; i.value = "";
@@ -2203,8 +2223,8 @@ function chatMount(e) {
   if (CHAT?.eid === e.id) { slot.replaceWith(CHAT.wrap); return; }
   chatStop();
   const wrap = document.createElement("div"), unsubs = [], until = chatUntil(e).toISOString();
-  if (chatGroupOk(e)) { const c = chatBox(t("chatH"), t("chatSub"), cb => HUB.chatWatch(e.id, cb), (v, nm) => HUB.chatSend(e.id, v, nm, until)); wrap.append(c.el); unsubs.push(c.unsub); }
-  if (chatDmOk(e)) { const did = e.id + "~" + HUB.me; const c = chatBox(t("dmH"), t("dmSub"), cb => HUB.dmWatch(did, cb), (v, nm) => HUB.dmSend(did, v, nm, until, e.t)); wrap.append(c.el); unsubs.push(c.unsub); }
+  if (chatGroupOk(e)) { const c = chatBox(t("chatH"), t("chatSub"), cb => HUB.chatWatch(e.id, cb), (v, nm) => HUB.chatSend(e.id, v, nm, until), "g:" + e.id); wrap.append(c.el); unsubs.push(c.unsub); }
+  if (chatDmOk(e)) { const did = e.id + "~" + HUB.me; const c = chatBox(t("dmH"), t("dmSub"), cb => HUB.dmWatch(did, cb), (v, nm) => HUB.dmSend(did, v, nm, until, e.t), "d:" + did); wrap.append(c.el); unsubs.push(c.unsub); }
   CHAT = { eid: e.id, wrap, unsubs }; slot.replaceWith(wrap);
 }
 function openDm(eid, em) {   // organiser: private chat with one person about one event
@@ -2212,7 +2232,7 @@ function openDm(eid, em) {   // organiser: private chat with one person about on
   const did = eid + "~" + em.toLowerCase(), until = chatUntil(e).toISOString();
   const d = document.createElement("dialog"); d.innerHTML = `<div class="sheet"><div class="sheet-top"><span class="tag">CCC</span><h2></h2><button class="x" aria-label="Close">×</button></div><div class="sheet-body"></div></div>`;
   d.querySelector("h2").textContent = t("dmOwnH", { n: invNm(em), e: e.t });
-  const c = chatBox(t("dmH"), t("dmSub"), cb => HUB.dmWatch(did, cb), (v, nm) => HUB.dmSend(did, v, nm, until, e.t).then(() => HUB.sendMsg(em, `💬 ${e.t}\n${v}`)));
+  const c = chatBox(t("dmH"), t("dmSub"), cb => HUB.dmWatch(did, cb), (v, nm) => HUB.dmSend(did, v, nm, until, e.t).then(() => HUB.sendMsg(em, `💬 ${e.t}\n${v}`)), "d:" + did);
   d.querySelector(".sheet-body").append(c.el);
   d.querySelector(".x").onclick = () => d.close(); d.addEventListener("close", () => { c.unsub(); d.remove(); });
   document.body.append(d); d.showModal();
@@ -2469,7 +2489,7 @@ function maybeNews() {
 }
 startConfirm();
 </script>
-<script type="module" src="ccc-web.js?v=3449a696a9"></script>
+<script type="module" src="ccc-web.js?v=70d85073be"></script>
 <script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>
