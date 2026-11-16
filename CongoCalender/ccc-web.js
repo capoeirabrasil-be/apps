@@ -141,6 +141,8 @@ const MPUSH_READY = true;
 const SEENPHONE_READY = true;
 // Organiser messages to members, and change of login e-mail (messages/{email}, emailChanges/{old}) need new Firestore rules. Keep false until Steven says "firestore rules updated" and the live rules match the file.
 const MSG_READY = true;
+// Event chat (chats/{eventId} + chats/{eventId}/m/{id}) needs new Firestore rules. Keep false until Steven says "firestore rules updated" and the live rules match the file.
+const CHAT_READY = false;
 const phoneLabel = () => { const u = navigator.userAgent, m = /Android[^;)]*;\s*([^;)]+)/.exec(u); return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" + (m && !/^(K|Mobile)$/.test(m[1].trim()) ? " (" + m[1].trim().slice(0, 40) + ")" : "") : /Windows|Macintosh|Linux/.test(u) ? "Computer" : "?"; };
 // Flyers need new Firestore rules (flyers + flyerImg). Keep false until Steven says "firestore rules updated" and live rules match the file.
 const FLYERS_READY = true;
@@ -165,7 +167,7 @@ function makeHub(user, owner) {
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
   return {
-    me, own: e => ids.includes(lc(e)), owner, msgReady: MSG_READY, rulesReady: RULES_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
+    me, own: e => ids.includes(lc(e)), owner, msgReady: MSG_READY, chatReady: CHAT_READY, rulesReady: RULES_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
     watch(cb) {
       fire = () => cb(st);
       on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; st.goingRoles = s.exists() ? s.data().roles || {} : {}; fire(); });
@@ -183,6 +185,12 @@ function makeHub(user, owner) {
         on(F.collection(fs, "seen"), qs => { st.seen = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
         on(F.collection(fs, "profiles"), qs => { st.profiles = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       }
+    },
+    chatWatch: (eid, cb) => F.onSnapshot(F.collection(fs, "chats", String(eid), "m"), qs => cb(qs.docs.map(d => ({ id: d.id, ...d.data() }))), () => cb([])),
+    async chatSend(eid, text, name, until) {
+      eid = String(eid); const at = new Date().toISOString();
+      await F.setDoc(F.doc(fs, "chats", eid), { until, at }, { merge: true });
+      await F.addDoc(F.collection(fs, "chats", eid, "m"), { text: String(text).slice(0, 500), by: real, name: String(name || "").slice(0, 60), at, until });
     },
     sendMsg: (em, text) => F.setDoc(F.doc(fs, "messages", lc(em)), { items: F.arrayUnion({ id: Date.now().toString(36), text: String(text).slice(0, 500), at: new Date().toISOString(), by: real }) }, { merge: true }),
     msgRead: at => F.setDoc(F.doc(fs, "messages", real), { readUpTo: String(at) }, { merge: true }),
