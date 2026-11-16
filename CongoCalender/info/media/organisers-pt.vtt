@@ -1,41 +1,50 @@
 WEBVTT
 
-00:00:00.753 --> 00:00:13.693
-Esta parte é para os organizadores. Quando um evento passa, um pop-up pergunta se o Congo foi. Toque na resposta, para as estatísticas ficarem certas.
+00:00:00.753 --> 00:00:14.293
+Esta parte é para os administradores. Quando um evento passa, um pop-up pergunta se o Congo foi. Toque na resposta, para as estatísticas ficarem certas.
 
-00:00:14.194 --> 00:00:27.514
-Abra um evento que ainda vai acontecer e toque em Eu vou, confirmar. É só isso que você precisa como organizador: não há um botão Eu vou separado para você.
+00:00:14.794 --> 00:00:28.194
+Abra um evento que ainda vai acontecer e toque em Eu vou, confirmar. É só isso que você precisa como administrador: não há um botão Eu vou separado para você.
 
-00:00:28.016 --> 00:00:39.356
+00:00:28.695 --> 00:00:40.915
 Mudou de planos? Toque em Já não vou poder. Os membros deixam de ver o evento, e ele não conta nos totais. Toque de novo para desfazer.
 
-00:00:39.856 --> 00:00:51.666
-Vais a um evento? Escolhe o teu papel: Participante, Convidado, Facilitador ou Organizador. Cada papel tem a sua cor nas listas e nas análises.
+00:00:41.415 --> 00:00:52.515
+Vais a um evento? Escolhe o teu papel: Participante, Convidado, Facilitador ou Coordenador do evento. Cada papel tem a sua cor nas listas e nas análises.
 
-00:00:52.167 --> 00:00:58.207
+00:00:53.016 --> 00:00:58.526
 Escolha o tipo de evento, para as cores e as contagens ficarem certas.
 
-00:00:58.708 --> 00:01:11.168
+00:00:59.027 --> 00:01:11.217
 Vai de carro? Preencha os lugares livres, de onde e a que horas sai, e toque em Salvar. Os membros podem então reservar um lugar.
 
-00:01:11.668 --> 00:01:20.928
+00:01:11.717 --> 00:01:21.017
 A aba Quem vai mostra, por evento, quem vai com o seu papel, e quem vai em que carro, marcado com um carro.
 
-00:01:21.429 --> 00:01:40.999
-Tudo para os organizadores fica na aba Admin. As notificações mostram quem vai, novas ideias e funções construídas. Mais abaixo, você convida pessoas com o endereço Google delas, e vê quando cada uma esteve online pela última vez.
+00:01:21.519 --> 00:01:40.609
+Tudo para os administradores fica na aba Admin. As notificações mostram quem vai, novas ideias e funções construídas. Mais abaixo, você convida pessoas com o endereço Google delas, e vê quando cada uma esteve online pela última vez.
 
-00:01:41.500 --> 00:02:08.170
+00:01:41.110 --> 00:02:06.670
 Os relatos de erro dos membros vêm primeiro, numa lista própria. As ideias vêm abaixo. GO quer dizer que será construída, NO GO pede um motivo, e Detalhar envia uma pergunta ao membro. Numa ideia com GO, Construir agora faz com que seja construída na próxima verificação por hora; senão ela espera a atualização diária.
 
-00:02:08.670 --> 00:02:37.190
+00:02:07.170 --> 00:02:35.340
 O separador Admin também verifica o calendário público do Grupo Capoeira Brasil. Os novos eventos aparecem numa lista: toca em Adicionar para o importar, ou em Descartar. Os eventos com descrição alterada aparecem numa segunda lista: toca em Atualizar descrição para usar o texto público, ou em Manter para ficar com o nosso. As duas listas abrem e fecham.
 
-00:02:37.691 --> 00:02:47.841
+00:02:35.840 --> 00:02:46.240
 Tens uma ideia? Escreve-a na caixa Função de admin, junta até três capturas de ecrã e escolhe Enviar para a próxima construção diária, ou Construir agora para ser feita na próxima verificação horária.
 
-00:02:48.342 --> 00:03:07.702
-Em Estatísticas, os organizadores também veem como o Congo participou: por papel e por ano, mais um segundo mapa com um gráfico circular em cada cidade a mostrar o papel. Eventos passados sem papel contam como Convidado ou facilitador de workshop até escolheres um no Admin.
+00:02:46.741 --> 00:03:07.211
+Em Estatísticas, os administradores também veem como o Congo participou: por papel e por ano, mais um segundo mapa com um gráfico circular em cada cidade a mostrar o papel. Eventos passados sem papel contam como Convidado ou facilitador de workshop até escolheres um no Admin.
 
-00:03:08.203 --> 00:03:25.963
+00:03:07.712 --> 00:03:27.682
+Na aba Quem vai, toque em Mensagem a todos para enviar uma mensagem no app a todos que vão a um evento. Cada evento também tem um chat em grupo e, ao lado de cada nome, um chat privado. Eles desaparecem quinze dias depois do evento.
+
+00:03:28.182 --> 00:03:46.042
+Na lista de convidados, cada pessoa tem botões: Mensagem, Login, para mudar o e-mail com que ela entra, e Revogar, que pede confirmação. Debaixo do nome você também vê que tipo de celular a pessoa usa.
+
+00:03:46.544 --> 00:03:55.864
+No topo dos Ajustes, ative Ver como membro para ver o app exatamente como um membro vê. Desative para voltar como administrador.
+
+00:03:56.366 --> 00:04:14.256
 Por fim, ative as notificações no celular. Abra o app pela tela de início e toque em Ativar notificações. Você recebe um aviso quando alguém entra no seu carro, ou quando chega uma nova ideia ou um relato de erro.
 

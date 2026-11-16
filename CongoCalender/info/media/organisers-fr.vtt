@@ -1,41 +1,50 @@
 WEBVTT
 
-00:00:00.752 --> 00:00:11.352
-Cette partie est pour les organisateurs. Quand un événement est passé, une fenêtre demande si Congo y est allé. Touchez votre réponse, pour que les statistiques restent justes.
+00:00:00.753 --> 00:00:11.533
+Cette partie est pour les administrateurs. Quand un événement est passé, une fenêtre demande si Congo y est allé. Touchez votre réponse, pour que les statistiques restent justes.
 
-00:00:11.853 --> 00:00:20.453
-Ouvrez un événement à venir et touchez J'y vais, confirmer. C'est tout ce qu'il faut en tant qu'organisateur : il n'y a pas de bouton J'y vais séparé pour vous.
+00:00:12.034 --> 00:00:20.724
+Ouvrez un événement à venir et touchez J'y vais, confirmer. C'est tout ce qu'il faut en tant qu'administrateur : il n'y a pas de bouton J'y vais séparé pour vous.
 
-00:00:20.954 --> 00:00:29.724
+00:00:21.225 --> 00:00:30.025
 Vos plans changent ? Touchez Je ne peux plus. Les membres ne voient alors plus l'événement, et il ne compte pas dans les totaux. Touchez à nouveau pour annuler.
 
-00:00:30.225 --> 00:00:40.775
-Tu vas à un événement ? Choisis ton rôle : Participant, Invité, Facilitateur ou Organisateur. Chaque rôle a sa couleur dans les listes et dans les statistiques.
+00:00:30.527 --> 00:00:41.267
+Tu vas à un événement ? Choisis ton rôle : Participant, Invité, Facilitateur ou Coordinateur de l'événement. Chaque rôle a sa couleur dans les listes et dans les statistiques.
 
-00:00:41.276 --> 00:00:45.206
+00:00:41.769 --> 00:00:45.939
 Choisissez le type d'événement, pour que les couleurs et les comptes soient justes.
 
-00:00:45.707 --> 00:00:54.927
+00:00:46.440 --> 00:00:55.920
 Vous prenez la voiture ? Indiquez les places libres, d'où et à quelle heure vous partez, et touchez Enregistrer. Les membres peuvent alors réserver une place.
 
-00:00:55.428 --> 00:01:01.928
+00:00:56.420 --> 00:01:02.820
 L’onglet Qui vient montre, par événement, qui y va avec son rôle, et qui est dans quelle voiture, marqué d’une voiture.
 
-00:01:02.428 --> 00:01:17.058
-Tout pour les organisateurs se trouve dans l'onglet Admin. Les notifications montrent qui vient, les nouvelles idées et les fonctions ajoutées. Plus bas, vous invitez des personnes avec leur adresse Google, et voyez quand chacun était en ligne pour la dernière fois.
+00:01:03.320 --> 00:01:18.180
+Tout pour les administrateurs se trouve dans l'onglet Admin. Les notifications montrent qui vient, les nouvelles idées et les fonctions ajoutées. Plus bas, vous invitez des personnes avec leur adresse Google, et voyez quand chacun était en ligne pour la dernière fois.
 
-00:01:17.559 --> 00:01:38.619
+00:01:18.681 --> 00:01:39.521
 Les signalements de bugs des membres viennent en premier, dans leur propre liste. Les idées suivent en dessous. GO veut dire qu'elle sera réalisée, NO GO vous demande un motif, et Préciser envoie une question au membre. Sur une idée en GO, Construire maintenant la fait réaliser à la prochaine vérification horaire ; sinon elle attend la mise à jour quotidienne.
 
-00:01:39.119 --> 00:02:01.559
+00:01:40.021 --> 00:02:02.771
 L’onglet Admin vérifie aussi l’agenda public du Grupo Capoeira Brasil. Les nouveaux événements apparaissent dans une liste : touche Ajouter pour en reprendre un, ou Ignorer. Les événements dont la description a changé apparaissent dans une seconde liste : touche Mettre à jour la description pour reprendre le texte public, ou Garder pour conserver le nôtre. Les deux listes s’ouvrent et se ferment.
 
-00:02:02.059 --> 00:02:14.869
+00:02:03.272 --> 00:02:15.912
 Tu as une idée ? Écris-la dans la zone Fonction admin, ajoute jusqu’à trois captures d’écran et choisis Envoyer pour la prochaine construction quotidienne, ou Construire maintenant pour la faire réaliser à la prochaine vérification horaire.
 
-00:02:15.370 --> 00:02:31.130
-Dans Statistiques, les organisateurs voient aussi comment Congo a participé : par rôle et par année, plus une seconde carte avec un camembert dans chaque ville montrant le rôle. Les événements passés sans rôle comptent comme Invité ou animateur d’atelier tant que tu n’en choisis pas un dans Admin.
+00:02:16.413 --> 00:02:32.533
+Dans Statistiques, les administrateurs voient aussi comment Congo a participé : par rôle et par année, plus une seconde carte avec un camembert dans chaque ville montrant le rôle. Les événements passés sans rôle comptent comme Invité ou animateur d’atelier tant que tu n’en choisis pas un dans Admin.
 
-00:02:31.631 --> 00:02:46.251
+00:02:33.034 --> 00:02:47.814
+Dans l'onglet Qui vient, touchez Message à tous pour envoyer à tous ceux qui vont à un événement un message dans l'appli. Chaque événement a aussi un chat de groupe, et à côté de chaque nom un chat privé. Ils disparaissent quinze jours après l'événement.
+
+00:02:48.321 --> 00:03:01.901
+Dans la liste des invités, chaque personne a des boutons : Message, Connexion, pour changer l'e-mail avec lequel elle se connecte, et Révoquer, qui demande confirmation. Sous le nom, vous voyez aussi le type de téléphone utilisé.
+
+00:03:02.402 --> 00:03:10.972
+En haut des Réglages, activez Voir comme un membre pour voir l'appli exactement comme un membre. Désactivez pour revenir en administrateur.
+
+00:03:11.472 --> 00:03:25.642
 Pour finir, activez les notifications sur votre téléphone. Ouvrez l'app depuis l'écran d'accueil et touchez Activer les notifications. Vous recevez alors une alerte quand quelqu'un monte dans votre voiture, ou qu'une nouvelle idée ou un bug arrive.
 
