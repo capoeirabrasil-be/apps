@@ -137,6 +137,9 @@ const RULES_READY = true;
 const PUSH_READY = true;
 // Push for regular members too (pushTokens rule changed to isViewer); owners see invitees' phone type. Keep false until Steven says "firestore rules updated" and the live rules match the file.
 const MPUSH_READY = true;
+// Phone type in the "last online" record (seen/{email}.phone) needs the seen rule to allow the key "phone". Keep false until Steven says "firestore rules updated" and the live rules match the file.
+const SEENPHONE_READY = false;
+const phoneLabel = () => { const u = navigator.userAgent, m = /Android[^;)]*;\s*([^;)]+)/.exec(u); return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" + (m && !/^(K|Mobile)$/.test(m[1].trim()) ? " (" + m[1].trim().slice(0, 40) + ")" : "") : /Windows|Macintosh|Linux/.test(u) ? "Computer" : "?"; };
 // Flyers need new Firestore rules (flyers + flyerImg). Keep false until Steven says "firestore rules updated" and live rules match the file.
 const FLYERS_READY = true;
 // Linked accounts: these emails share one profile, going list and car seats (Steven, 15 Nov). Needs the rule change for going/profiles
@@ -294,7 +297,7 @@ async function startApp(user) {
     if (Date.now() - prev < 15 * 60e3) return;
     try { localStorage.setItem("ccc.ping", String(Date.now())); } catch {}
     const now = new Date(), day = now.toISOString().slice(0, 10);
-    F.setDoc(F.doc(fs, "seen", lc(user.email)), { last: now.toISOString(), days: F.arrayUnion(day), opens: F.increment(1) }, { merge: true }).catch(() => {});
+    F.setDoc(F.doc(fs, "seen", lc(user.email)), { last: now.toISOString(), days: F.arrayUnion(day), opens: F.increment(1), ...(SEENPHONE_READY ? { phone: phoneLabel() } : {}) }, { merge: true }).catch(() => {});
   };
   if (RULES_READY) { ping(); document.addEventListener("visibilitychange", ping); }
   window.claude = {
