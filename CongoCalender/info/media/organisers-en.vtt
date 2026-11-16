@@ -1,29 +1,41 @@
 WEBVTT
 
-00:00:00.753 --> 00:00:09.493
+00:00:00.751 --> 00:00:09.551
 This part is for the organisers. When an event has passed, a pop-up asks whether Congo went. Tap your answer, so the analytics stay right.
 
-00:00:09.994 --> 00:00:18.014
+00:00:10.053 --> 00:00:17.883
 Open an upcoming event and tap I'm going, confirm. That's all you need as an organiser: there is no separate I'm going button for you.
 
-00:00:18.515 --> 00:00:27.565
+00:00:18.384 --> 00:00:27.144
 Plans changed? Tap Can't make it any more. Members then no longer see the event, and it doesn't count in the totals. Tap again to undo.
 
-00:00:28.066 --> 00:00:31.366
+00:00:27.645 --> 00:00:36.525
+Going to an event? Choose your role: Participant, Guest, Facilitator or Organizer. Each role has its own colour in the lists and in the analytics.
+
+00:00:37.026 --> 00:00:40.476
 Choose the type of event, so the colours and the counts are right.
 
-00:00:31.867 --> 00:00:38.607
+00:00:40.977 --> 00:00:47.807
 Taking the car? Fill in the free seats, where and when you leave, and tap Save. Members can then reserve a seat.
 
-00:00:39.108 --> 00:00:43.328
-The Joining tab shows, per event, who is going and who sits in which car.
+00:00:48.308 --> 00:00:54.048
+The Joining tab shows, per event, who is going with their role, and who sits in which car, marked with a car.
 
-00:00:43.830 --> 00:00:56.920
+00:00:54.550 --> 00:01:07.400
 Everything for organisers is in the Admin tab. Notifications show who is joining, new ideas and built features. Below, you invite people with their Google address, and see when each person was last online.
 
-00:00:57.421 --> 00:01:14.981
+00:01:07.901 --> 00:01:25.161
 Bug reports from members come first, in their own list. Ideas follow below. GO means it gets built, NO GO asks you for a reason, and Elaborate sends the member a question. On a GO idea, Start build now has it built at the next hourly check; otherwise it waits for the daily update.
 
-00:01:15.483 --> 00:01:27.623
+00:01:25.661 --> 00:01:44.791
+The Admin tab also checks the public calendar of Grupo Capoeira Brasil. New events there appear in a list: tap Add to take one over, or Discard. Events whose description changed appear in a second list: tap Update description to take over the public text, or Keep to stay with ours. Both lists open and close.
+
+00:01:45.292 --> 00:01:55.772
+Got an idea yourself? Write it in the Admin feature box, add up to three screenshots, and choose Submit for the next daily build, or Build now to have it built at the next hourly check.
+
+00:01:56.272 --> 00:02:10.352
+In Analytics, organisers also see how Congo took part: per role, and per year, plus a second map with a pie at every city showing the role. Past events without a role count as Guest or workshop facilitator until you choose one in Admin.
+
+00:02:10.852 --> 00:02:22.932
 Finally, turn on phone notifications. Open the app from your home screen and tap Turn on notifications. You then get a pop-up when someone joins your car, or when a new idea or bug report arrives.
 
