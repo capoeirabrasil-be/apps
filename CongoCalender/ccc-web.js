@@ -138,7 +138,7 @@ const PUSH_READY = true;
 // Push for regular members too (pushTokens rule changed to isViewer); owners see invitees' phone type. Keep false until Steven says "firestore rules updated" and the live rules match the file.
 const MPUSH_READY = true;
 // Phone type in the "last online" record (seen/{email}.phone) needs the seen rule to allow the key "phone". Keep false until Steven says "firestore rules updated" and the live rules match the file.
-const SEENPHONE_READY = false;
+const SEENPHONE_READY = true;
 const phoneLabel = () => { const u = navigator.userAgent, m = /Android[^;)]*;\s*([^;)]+)/.exec(u); return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" + (m && !/^(K|Mobile)$/.test(m[1].trim()) ? " (" + m[1].trim().slice(0, 40) + ")" : "") : /Windows|Macintosh|Linux/.test(u) ? "Computer" : "?"; };
 // Flyers need new Firestore rules (flyers + flyerImg). Keep false until Steven says "firestore rules updated" and live rules match the file.
 const FLYERS_READY = true;
