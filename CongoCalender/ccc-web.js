@@ -189,9 +189,9 @@ function makeHub(user, owner) {
     setGoing: (id, yes) => F.setDoc(F.doc(fs, "going", me), { events: yes ? F.arrayUnion(id) : F.arrayRemove(id), at: new Date().toISOString() }, { merge: true }),
     setGoingRole: (id, role) => F.setDoc(F.doc(fs, "going", me), { roles: { [String(id)]: role }, at: new Date().toISOString() }, { merge: true }),
     // Owner-written feature for the build list (no Go / No Go): created as "new" (rules), then set to "go" at once.
-    async adminFeature(text, byName, now) {
+    async adminFeature(text, byName, now, shots) {
       const at = new Date().toISOString();
-      const r = await F.addDoc(F.collection(fs, "suggestions"), { text: String(text).slice(0, 2000), by: real, byName: String(byName || "").slice(0, 80), at, status: "new", kind: "idea", admin: true, notified: "go" });
+      const r = await F.addDoc(F.collection(fs, "suggestions"), { text: String(text).slice(0, 2000), by: real, byName: String(byName || "").slice(0, 80), at, status: "new", kind: "idea", admin: true, notified: "go", ...(Array.isArray(shots) && shots.length ? { shots: shots.filter(x => typeof x === "string" && x.startsWith("data:image/")).slice(0, 3) } : {}) });
       await F.updateDoc(r, { status: "go", buildNow: !!now, notified: "go", goAt: at, by_owner: real, changedAt: at });
     },
     setProfile: p => F.setDoc(F.doc(fs, "profiles", me), { first: String(p.first || "").slice(0, 60), last: String(p.last || "").slice(0, 60), capo: String(p.capo || "").slice(0, 60), at: new Date().toISOString() }),
