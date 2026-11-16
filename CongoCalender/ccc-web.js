@@ -142,7 +142,7 @@ const SEENPHONE_READY = true;
 // Organiser messages to members, and change of login e-mail (messages/{email}, emailChanges/{old}) need new Firestore rules. Keep false until Steven says "firestore rules updated" and the live rules match the file.
 const MSG_READY = true;
 // Event chat (chats/{eventId} + chats/{eventId}/m/{id}) needs new Firestore rules. Keep false until Steven says "firestore rules updated" and the live rules match the file.
-const CHAT_READY = false;
+const CHAT_READY = true;
 const phoneLabel = () => { const u = navigator.userAgent, m = /Android[^;)]*;\s*([^;)]+)/.exec(u); return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" + (m && !/^(K|Mobile)$/.test(m[1].trim()) ? " (" + m[1].trim().slice(0, 40) + ")" : "") : /Windows|Macintosh|Linux/.test(u) ? "Computer" : "?"; };
 // Flyers need new Firestore rules (flyers + flyerImg). Keep false until Steven says "firestore rules updated" and live rules match the file.
 const FLYERS_READY = true;
