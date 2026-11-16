@@ -136,7 +136,7 @@ const RULES_READY = true;
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
 const PUSH_READY = true;
 // Push for regular members too (pushTokens rule changed to isViewer); owners see invitees' phone type. Keep false until Steven says "firestore rules updated" and the live rules match the file.
-const MPUSH_READY = false;
+const MPUSH_READY = true;
 // Flyers need new Firestore rules (flyers + flyerImg). Keep false until Steven says "firestore rules updated" and live rules match the file.
 const FLYERS_READY = true;
 // Linked accounts: these emails share one profile, going list and car seats (Steven, 15 Nov). Needs the rule change for going/profiles
