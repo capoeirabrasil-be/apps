@@ -14,7 +14,7 @@ const auth = A.getAuth(app);
 const OFFLINE = (() => { try { return localStorage.getItem("ccc.offline"); } catch { return null; } })();
 let fs;
 if (OFFLINE === "on") { try { fs = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); } catch { fs = F.getFirestore(app); } }
-else { fs = F.getFirestore(app); if (OFFLINE === "clear") { try { await F.clearIndexedDbPersistence(fs); localStorage.removeItem("ccc.offline"); } catch {} } }
+else { fs = F.getFirestore(app); if (OFFLINE === "clear") { try { await F.clearIndexedDbPersistence(fs); localStorage.removeItem("ccc.offline"); } catch {} try { for (const k of await caches.keys()) if (k.startsWith("ccc") && k !== "ccc-flag") await caches.delete(k); } catch {} } }
 // Tell the service worker whether this phone has "Available offline" on: then the app page opens from the phone's copy first and refreshes in the background.
 try { if (OFFLINE === "on") caches.open("ccc-flag").then(c => c.put("ccc-flag-on", new Response("1"))); else caches.delete("ccc-flag"); } catch {}
 window.cccOffline = {

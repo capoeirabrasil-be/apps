@@ -1354,6 +1354,12 @@ async function offDownloadVideos() {
   } catch {}
   OFF_PROG = { ...OFF_PROG, done: OFF_PROG.a >= OFF_PROG.b }; offStatus(); offUsed();
 }
+// Turning "Available offline" off: remove everything saved for it on this phone: video cache, the app copy in Cache Storage, the offline flag, the mode and the remembered admin check. The calendar copy (IndexedDB) is wiped by ccc-web.js right after the reload.
+async function offWipe() {
+  await offClearVideos();
+  try { for (const k of await caches.keys()) if (k.startsWith("ccc")) await caches.delete(k); } catch {}
+  try { for (const k of Object.keys(localStorage)) if (k === "ccc.offlineMode" || k.startsWith("ccc.owner.")) localStorage.removeItem(k); } catch {}
+}
 async function offClearVideos() { try { await caches.delete("ccc-videos"); } catch {} for (const k of Object.keys(VG_BLOB)) { URL.revokeObjectURL(VG_BLOB[k]); delete VG_BLOB[k]; } OFF_PROG = null; }
 function offStatus() { const el = $("#offvid"); if (el) el.textContent = !OFF_PROG ? "" : OFF_PROG.done ? "✅ " + t("offVidDone") : "⬇ " + t("offVidSaving", { a: OFF_PROG.a, b: OFF_PROG.b }); }
 function offSection() {
@@ -1909,7 +1915,7 @@ document.addEventListener("click", ev => { if (ev.target.closest?.("[data-signou
 document.addEventListener("click", ev => {
   const m = ev.target.closest?.("[data-offmode]");
   if (m) { store.set("offlineMode", m.dataset.offmode); if (!window.cccOffline.on) { m.disabled = true; window.cccOffline.set(true); return; } if (m.dataset.offmode !== "min") offDownloadVideos(); else offClearVideos(); render(); return; }
-  const b = ev.target.closest?.("[data-offline]"); if (b) { b.disabled = true; offClearVideos(); window.cccOffline?.set(b.dataset.offline === "on"); }
+  const b = ev.target.closest?.("[data-offline]"); if (b) { b.disabled = true; if (b.dataset.offline === "on") return window.cccOffline?.set(true); return offWipe().finally(() => window.cccOffline?.set(false)); }
 });
 document.addEventListener("change", ev => { if (ev.target.id === "invlang") INV_LANG = ev.target.value; });
 document.addEventListener("submit", ev => {
@@ -2182,7 +2188,7 @@ function maybeNews() {
 }
 startConfirm();
 </script>
-<script type="module" src="ccc-web.js?v=4cd326eff2"></script>
+<script type="module" src="ccc-web.js?v=d84c39ba91"></script>
 <script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>
