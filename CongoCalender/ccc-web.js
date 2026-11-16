@@ -139,6 +139,8 @@ const PUSH_READY = true;
 const MPUSH_READY = true;
 // Phone type in the "last online" record (seen/{email}.phone) needs the seen rule to allow the key "phone". Keep false until Steven says "firestore rules updated" and the live rules match the file.
 const SEENPHONE_READY = true;
+// Organiser messages to members, and change of login e-mail (messages/{email}, emailChanges/{old}) need new Firestore rules. Keep false until Steven says "firestore rules updated" and the live rules match the file.
+const MSG_READY = false;
 const phoneLabel = () => { const u = navigator.userAgent, m = /Android[^;)]*;\s*([^;)]+)/.exec(u); return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" + (m && !/^(K|Mobile)$/.test(m[1].trim()) ? " (" + m[1].trim().slice(0, 40) + ")" : "") : /Windows|Macintosh|Linux/.test(u) ? "Computer" : "?"; };
 // Flyers need new Firestore rules (flyers + flyerImg). Keep false until Steven says "firestore rules updated" and live rules match the file.
 const FLYERS_READY = true;
@@ -163,7 +165,7 @@ function makeHub(user, owner) {
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
   return {
-    me, own: e => ids.includes(lc(e)), owner, rulesReady: RULES_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
+    me, own: e => ids.includes(lc(e)), owner, msgReady: MSG_READY, rulesReady: RULES_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
     watch(cb) {
       fire = () => cb(st);
       on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; st.goingRoles = s.exists() ? s.data().roles || {} : {}; fire(); });
@@ -172,6 +174,7 @@ function makeHub(user, owner) {
       // suggestions/{id} {text, by, byName, at, status: new|ask|answered|go|done|nogo, question, reply}: members see their own, owners all.
       const sq = owner ? F.collection(fs, "suggestions") : F.query(F.collection(fs, "suggestions"), F.where("by", "==", real));
       on(sq, qs => { st.sugg = qs.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(b.at).localeCompare(String(a.at))); fire(); });
+      if (MSG_READY) on(F.doc(fs, "messages", real), s => { st.msgs = s.exists() ? s.data() : {}; fire(); });
       if (FLYERS_READY) on(F.collection(fs, "flyers"), qs => { st.flyers = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       if (DESC_READY) on(F.collection(fs, "descs"), qs => { st.descs = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       if (owner) {
@@ -180,6 +183,14 @@ function makeHub(user, owner) {
         on(F.collection(fs, "seen"), qs => { st.seen = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
         on(F.collection(fs, "profiles"), qs => { st.profiles = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); fire(); });
       }
+    },
+    sendMsg: (em, text) => F.setDoc(F.doc(fs, "messages", lc(em)), { items: F.arrayUnion({ id: Date.now().toString(36), text: String(text).slice(0, 500), at: new Date().toISOString(), by: real }) }, { merge: true }),
+    msgRead: at => F.setDoc(F.doc(fs, "messages", real), { readUpTo: String(at) }, { merge: true }),
+    async changeLogin(old, neu) {
+      old = lc(old); neu = lc(neu); const at = new Date().toISOString(), cur = ACCESS.find(x => x.email === old);
+      await F.setDoc(F.doc(fs, "access", neu), { role: cur?.role || "viewer", at, revoked: false, revokedAt: "" });
+      await F.setDoc(F.doc(fs, "access", old), { role: cur?.role || "viewer", at: cur?.at || at, revoked: true, revokedAt: at, movedTo: neu });
+      await F.setDoc(F.doc(fs, "emailChanges", old), { to: neu, at, by: real, done: false });
     },
     setDesc: (id, text, extra) => F.setDoc(F.doc(fs, "descs", String(id)), { text: String(text).slice(0, 4000), by: real, at: new Date().toISOString(), synced: false, ...(extra ? { src: extra.src, t: extra.t } : { src: F.deleteField(), t: F.deleteField() }) }, { merge: true }),
     setLoc: (id, loc) => F.setDoc(F.doc(fs, "descs", String(id)), { loc: String(loc).slice(0, 300), by: real, at: new Date().toISOString(), synced: false }, { merge: true }),
