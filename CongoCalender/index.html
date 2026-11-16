@@ -2256,8 +2256,8 @@ function maybeNews() {
     store.set("newsOff1", "1");
     return showPop(t("offNewsH"), t("offNewsP"), [t("offChoose"), () => { location.hash = "settings"; }], () => setTimeout(maybeNews, 400));
   }
-  if (HUB?.push && ["off", "install"].includes(HUB.push.state()) && !store.get("newsPush1") && !$("#remind").open && !$("#sheet").open) {
-    store.set("newsPush1", "1");
+  if (HUB?.push && ["off", "install"].includes(HUB.push.state()) && !store.get("newsPush2") && !$("#remind").open && !$("#sheet").open) {
+    store.set("newsPush2", "1");
     return showPop(t("pushNewsH"), t("pushNewsP"), [t("pushNewsGo"), () => { location.hash = "settings"; }], () => setTimeout(maybeNews, 400));
   }
   if (!store.get("newsLng1") && !$("#remind").open && !$("#sheet").open) {
