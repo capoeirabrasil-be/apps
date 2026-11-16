@@ -277,7 +277,8 @@ async function startApp(user) {
   // Available offline: the calendar was read from the phone's copy when there was no internet. As soon as the
   // phone is online again (or the app comes back to the front), fetch the server copy and reload if it is newer.
   if (OFFLINE === "on") {
-    const fresh = async () => { if (!navigator.onLine) return; try { const s = await F.getDocFromServer(F.doc(fs, "cal", "main")); if (s.exists() && (s.data().at || "") !== calAt) location.reload(); } catch {} };
+    const busy = d => { window.__cccBusy = Math.max(0, (window.__cccBusy || 0) + d); window.dispatchEvent(new Event("ccc-sync")); };
+    const fresh = async () => { if (!navigator.onLine) return; busy(1); try { const s = await F.getDocFromServer(F.doc(fs, "cal", "main")); if (s.exists() && (s.data().at || "") !== calAt) { window.__cccNewData = true; window.dispatchEvent(new Event("ccc-newdata")); } } catch {} busy(-1); };
     addEventListener("online", fresh);
     if (fromCache) fresh();   // the calendar above came from the phone's copy: fetch the server copy now, in the background
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") fresh(); });
