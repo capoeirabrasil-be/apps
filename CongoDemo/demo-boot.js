@@ -97,6 +97,7 @@
   sg("s4", "bruno@example.com", "Formiga", X.s4, "new", "idea", { h: 12 });
   sg("s5", "gabi@example.com", "Pitanga", X.s5, "ask", "feedback", { question: X.s5q, reply: "", h: 25 });
   sg("s6", MEM, "Demo Member", X.s6, "nogo", "idea", { seenNogo: true, nogoComment: X.s6c, nogoAt: ago(70), h: 300 });
+  sg("s10", ADM, "Demo Admin", X.s5, "nogo", "bug", { seenNogo: true, nogoComment: X.s6c, nogoAt: ago(30), h: 100 });
   sg("s8", "hugo@example.com", "Trovão", X.s8, "done", "bug", { doneAt: ago(60), h: 240, seenBy: true, reply: "" });
   sg("s9", ADM, "Demo Admin", X.s9, "done", "idea", { doneAt: ago(100), h: 400, seenBy: true, admin: true });
   sg("s7", "ines@example.com", "Sereia", X.s7, "new", "feedback", { h: 5, react: "like" });
