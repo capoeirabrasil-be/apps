@@ -617,6 +617,12 @@ details.sgdone[open] summary { border-bottom: 1px solid var(--line); margin-bott
     <div class="sheet-body" id="rm-body"></div>
   </div>
 </dialog>
+<dialog id="confirmdlg" aria-labelledby="cf-title">
+  <div class="sheet">
+    <div class="sheet-top"><span class="tag">CCC</span><h2 id="cf-title"></h2></div>
+    <div class="sheet-body"><p id="cf-text"></p><div class="actions"><button class="btn" type="button" id="cf-yes"></button><button class="btn alt" type="button" id="cf-no"></button></div></div>
+  </div>
+</dialog>
 <dialog id="rolepop" aria-labelledby="rp-title">
   <div class="sheet">
     <div class="sheet-top"><span class="tag">CCC</span><h2 id="rp-title"></h2><div class="when" id="rp-sub"></div><button class="x" id="rp-x" aria-label="Close">×</button></div>
@@ -1823,7 +1829,7 @@ function costSheet(e, past) {   // after the event: the driver enters the costs,
     const dis = !!co?.discarded; const tot = co && !dis ? carTotal(co) : 0, per = co ? Math.round(tot * 100 / n) / 100 : 0;
     let h = `<div class="car costbox"><b>💶 ${esc(t("costH"))} · ${esc(t("carOf", { n: name }))}</b>`;
     if (dis) { h += `<p class="costsum"><b>${t("costDiscarded")}</b></p>`; if (edit) h += `<button class="btn alt" type="button" data-costreopen="${esc(c.id)}">${t("costReopen")}</button>`; return h + `</div>`; }
-    if (edit) h += `<p class="hint">${t("costSubD")}</p><form class="costform" data-costform="${esc(c.id)}" data-n="${n}"><div class="crow"><label class="lbl" for="cg${esc(c.id)}">${t("costGas")}</label><input id="cg${esc(c.id)}" name="gas" type="number" inputmode="decimal" min="0" step="0.01" value="${co?.gas ?? ""}"></div><div class="crow"><label class="lbl">${t("costToll")}</label><input name="toll" type="number" inputmode="decimal" min="0" step="0.01" value="${co?.toll ?? ""}"></div><div class="crow"><label class="lbl">${t("costParking")}</label><input name="parking" type="number" inputmode="decimal" min="0" step="0.01" value="${co?.parking ?? ""}"></div><div class="crow"><label class="lbl">${t("costOther")}</label><input name="other" type="number" inputmode="decimal" min="0" step="0.01" value="${co?.other ?? ""}"></div><input class="wide" name="note" maxlength="120" placeholder="${esc(t("costOtherNote"))}" value="${esc(co?.note || "")}"><p class="costtot wide"></p><button class="btn" type="submit">${t("costSave")}</button></form><div class="discard"><button class="btn alt" type="button" data-costdiscard="${esc(c.id)}">${t("costDiscard")}</button><span class="dsure" hidden>${t("costDiscardSure")} <button class="btn" type="button" data-costdiscardyes="${esc(c.id)}">${t("costDiscardYes")}</button> <button class="btn alt" type="button" data-costdiscardno>${t("costDiscardNo")}</button></span></div>`;
+    if (edit) h += `<p class="hint">${t("costSubD")}</p><form class="costform" data-costform="${esc(c.id)}" data-n="${n}"><div class="crow"><label class="lbl" for="cg${esc(c.id)}">${t("costGas")}</label><input id="cg${esc(c.id)}" name="gas" type="number" inputmode="decimal" min="0" step="0.01" value="${co?.gas ?? ""}"></div><div class="crow"><label class="lbl">${t("costToll")}</label><input name="toll" type="number" inputmode="decimal" min="0" step="0.01" value="${co?.toll ?? ""}"></div><div class="crow"><label class="lbl">${t("costParking")}</label><input name="parking" type="number" inputmode="decimal" min="0" step="0.01" value="${co?.parking ?? ""}"></div><div class="crow"><label class="lbl">${t("costOther")}</label><input name="other" type="number" inputmode="decimal" min="0" step="0.01" value="${co?.other ?? ""}"></div><input class="wide" name="note" maxlength="120" placeholder="${esc(t("costOtherNote"))}" value="${esc(co?.note || "")}"><p class="costtot wide"></p><button class="btn" type="submit">${t("costSave")}</button></form><div class="discard"><button class="btn alt" type="button" data-costdiscard="${esc(c.id)}">${t("costDiscard")}</button></div>`;
     if (co) h += `<p class="costsum"><b>${t("costTotal", { a: eur(tot) })}</b><br>${t("costPer", { a: eur(per), n })}${co.note ? `<br><small>${esc(co.note)}</small>` : ""}</p>`;
     else if (!edit) h += `<p class="hint">${t("costNoYet")}</p>`;
     if (co && edit && r.length) h += `<div class="lbl">${t("costPaidH")} (${t("costStatus", { p: r.filter(x => paid.includes(x)).length, n: r.length })})</div>${r.map(x => `<label class="chk"><input type="checkbox" data-paid="${esc(c.id)}|${esc(x)}"${paid.includes(x) ? " checked" : ""}> ${esc(dispName(x))}</label>`).join("")}`;
@@ -1832,12 +1838,16 @@ function costSheet(e, past) {   // after the event: the driver enters the costs,
   };
   return `<div class="hubbox">${cars.map(box).join("")}<p class="hubmsg" role="alert"></p></div>`;
 }
+function askSure(title, text, yes, no, onYes) {
+  const d = document.getElementById("confirmdlg");
+  document.getElementById("cf-title").textContent = title; document.getElementById("cf-text").textContent = text;
+  const y = document.getElementById("cf-yes"), n = document.getElementById("cf-no"); y.textContent = yes; n.textContent = no;
+  y.onclick = () => { d.close(); onYes(); }; n.onclick = () => d.close();
+  d.showModal();
+}
 document.addEventListener("click", ev => {
-  const b = ev.target.closest?.("[data-costdiscard],[data-costdiscardyes],[data-costdiscardno],[data-costreopen]"); if (!b) return;
-  const box = b.closest(".discard");
-  if (b.matches("[data-costdiscard]")) { b.hidden = true; box.querySelector(".dsure").hidden = false; }
-  else if (b.matches("[data-costdiscardno]")) { box.querySelector(".dsure").hidden = true; box.querySelector("[data-costdiscard]").hidden = false; }
-  else if (b.matches("[data-costdiscardyes]")) hubDo(() => HUB.setCarFields(b.dataset.costdiscardyes, { cost: { discarded: true, total: 0, at: new Date().toISOString() }, paid: [] }), b);
+  const b = ev.target.closest?.("[data-costdiscard],[data-costreopen]"); if (!b) return;
+  if (b.matches("[data-costdiscard]")) askSure(t("costDiscard"), t("costDiscardSure"), t("costDiscardYes"), t("costDiscardNo"), () => hubDo(() => HUB.setCarFields(b.dataset.costdiscard, { cost: { discarded: true, total: 0, at: new Date().toISOString() }, paid: [] }), b));
   else hubDo(() => HUB.setCarFields(b.dataset.costreopen, { cost: null, paid: [] }), b);
 });
 document.addEventListener("input", ev => { const f = ev.target.closest?.("form[data-costform]"); if (!f) return; const co = { gas: f.gas.value, toll: f.toll.value, parking: f.parking.value, other: f.other.value }, n = +f.dataset.n || 1, tot = carTotal(co); f.querySelector(".costtot").textContent = `${t("costTotal", { a: eur(tot) })} · ${t("costPer", { a: eur(Math.round(tot * 100 / n) / 100), n })}`; });
