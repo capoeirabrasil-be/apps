@@ -150,7 +150,7 @@ const CARNOTE_READY = true;
 // Riders' names on the car (cars/{id}.rn {email: nickname or name}); members need a stored nickname/name to reserve a seat. Needs the cars rule that accepts the key "rn" for riders. Keep false until Steven says "firestore rules updated" and the live rules match the file.
 const CARRN_READY = true;
 // Members delete their own rejected (NO GO) idea or bug: needs the suggestions delete rule. Keep false until Steven says "firestore rules updated" and the live rules match the file.
-const SUGDEL_READY = false;
+const SUGDEL_READY = true;
 const RULES_READY = true;
 // Phone push for owners: pushTokens/{email} {devices: {<deviceId>: {token, at, ua, lang}}}. Needs the pushTokens rule
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
