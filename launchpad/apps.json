@@ -20,6 +20,56 @@
       "web": "https://apps.capoeirabrasil.be/CongoCalender/",
       "appstore": "",
       "playstore": ""
+    },
+    {
+      "section": "friends",
+      "id": "ginga-nation",
+      "name": "Ginga Nation",
+      "description": "All-in-One Capoeira Administration App",
+      "icon": "https://www.google.com/s2/favicons?domain=ginganation.com&sz=128",
+      "web": "",
+      "appstore": "https://apps.apple.com/app/id6781855862",
+      "playstore": "https://play.google.com/store/apps/details?id=com.ginganation.app"
+    },
+    {
+      "section": "friends",
+      "id": "canto",
+      "name": "CANTO",
+      "description": "Mestre Mindinho's Song App",
+      "icon": "https://www.google.com/s2/favicons?domain=capoeirabrasil.me&sz=128",
+      "web": "https://capoeirabrasil.me/canto/",
+      "appstore": "",
+      "playstore": ""
+    },
+    {
+      "section": "friends",
+      "id": "treino",
+      "name": "TREINO",
+      "description": "Mestre Mindinho's All-in-One App",
+      "icon": "https://www.google.com/s2/favicons?domain=capoeirabrasil.me&sz=128",
+      "web": "https://capoeirabrasil.me/palm-springs/app/login",
+      "appstore": "",
+      "playstore": ""
+    },
+    {
+      "section": "other",
+      "id": "freeletics",
+      "name": "Freeletics",
+      "description": "Body weight workout app",
+      "icon": "https://www.google.com/s2/favicons?domain=freeletics.com&sz=128",
+      "web": "",
+      "appstore": "https://apps.apple.com/app/id654810212",
+      "playstore": "https://play.google.com/store/apps/details?id=com.freeletics.lite"
+    },
+    {
+      "section": "other",
+      "id": "intervals-pro",
+      "name": "Intervals Pro",
+      "description": "Timer app to pre-program your intervals",
+      "icon": "",
+      "web": "",
+      "appstore": "https://apps.apple.com/app/id957586938",
+      "playstore": ""
     }
   ]
 }
