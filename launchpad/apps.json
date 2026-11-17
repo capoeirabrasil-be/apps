@@ -1,6 +1,7 @@
 {
-  "_help": "One block per app. Leave a link empty (\"\") if it does not exist. icon = file in launchpad/icons/ or a full https link. id = short name used in links like apps.capoeirabrasil.be/launchpad/?app=congo-calendar",
+  "_help": "One block per app. Leave a link empty (\"\") if it does not exist. icon = file in launchpad/icons/ or a full https link. id = short name used in links like apps.capoeirabrasil.be/launchpad/?app=congo-calendar. section = congo, friends or other (Congo Apps / Congo's Friends Apps / Other Useful Apps).",
   "_example_copy_me": {
+    "section": "friends",
     "id": "example-app",
     "name": "Example app (replace me)",
     "description": "Short line about the app",
@@ -11,6 +12,7 @@
   },
   "apps": [
     {
+      "section": "congo",
       "id": "congo-calendar",
       "name": "Congo Capoeira Calendar",
       "description": "Rodas, encontros, workshops and formaturas",
