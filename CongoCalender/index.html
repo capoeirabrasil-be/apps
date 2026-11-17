@@ -484,6 +484,8 @@ details.sgdone[open] summary { border-bottom: 1px solid var(--line); margin-bott
 .costform input { width: 110px; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; }
 .discard { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .discard[hidden], .dsure[hidden] { display: none; }
+.hwshot { grid-column: 2; justify-self: start; width: 96px; height: auto; margin: 6px 0 0; border-radius: 10px; border: 1px solid var(--line); cursor: zoom-in; }
+.hwshot.zoom { width: 100%; max-width: 330px; cursor: zoom-out; }
 .car.mine { border: 1.5px solid var(--orange); border-radius: 12px; padding: 10px 12px; }
 .costform .crow { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .costform .crow .lbl { margin: 0; }
@@ -1461,10 +1463,15 @@ function viewJoining() {
     ${up.length ? up.map(card).join("") : `<p class="empty">${t("joinNone")}</p>`}
     ${past.length ? `<details><summary class="lbl" style="cursor:pointer;margin:14px 0 10px">${t("joinPast")} (${past.length})</summary>${past.map(card).join("")}</details>` : ""}`;
 }
+// Mini screenshots (example data, from the info page) next to each member topic; website only. Tap one to enlarge it.
+const HW_SHOT = { up: "upcoming", ag: "agenda", ev: "event", go: "event", going: "going", car: "car", cost: "car", wx: "event", prof: "settings", st: "analytics", set: "settings", off: "settings", sug: "suggest", chat: "going" };
+const hwShot = k => HUB && HW_SHOT[k] ? `<img class="hwshot" loading="lazy" alt="" src="https://apps.capoeirabrasil.be/CongoCalender/info/shots/${["en", "nl", "pt", "fr", "es", "pl", "uk", "de"].includes(LANG) ? LANG : "en"}-${HW_SHOT[k]}.webp" width="390" height="664">` : "";
+document.addEventListener("click", ev => { const i = ev.target.closest?.(".hwshot"); if (i) i.classList.toggle("zoom"); });
+document.addEventListener("error", ev => { if (ev.target.classList?.contains("hwshot")) ev.target.remove(); }, true);
 function viewHowto() {
   const S = [["📅", "up"], ["🗓️", "ag"], ["📄", "ev"], ["🙋", "go", 1], ["✅", "going", 1], ["🚗", "car", 1], ["👤", "prof", 1], ["🌦️", "wx"], ["📊", "st"], ["🌐", "set"], ["📶", "off", 1], ["💬", "chat", 1], ...(HUB?.carCostReady ? [["💶", "cost", 1]] : []), ...(HUB?.rulesReady ? [["💡", "sug", 1]] : [])];
   const O = [["🛡️", "admin"], ["📣", "share"], ["👥", "join", 1], ["🚘", "ocar", 1], ["✅", "conf"], ["🖼️", "flyer"], ["📷", "flyup"], ["✏️", "descedit"], ["📸", "ig"], ["🗑️", "del"], ["🧩", "afeat", 1], ["✉️", "inv"], ["🔄", "ref"], ...(HUB?.rulesReady ? [["🗳️", "osug", 1]] : [])];
-  const sec = ([ic, k, web]) => web && !HUB || k === "chat" && !HUB?.chatReady ? "" : `<section><span class="ic">${ic}</span><h3>${t("hw_" + k + "_h")}</h3><p>${t("hw_" + k + "_p")}${k === "off" ? " " + t("offFirstNote") : ""}${k === "inv" && HUB?.msgReady ? " " + t("hw_inv_p2") : ""}${k === "share" ? `<br><button class="btn alt" type="button" style="margin-top:8px" data-sharecopy="https://apps.capoeirabrasil.be/CongoCalender/info/">${t("shareCopy")}</button>` : ""}</p></section>`;
+  const sec = ([ic, k, web]) => web && !HUB || k === "chat" && !HUB?.chatReady ? "" : `<section><span class="ic">${ic}</span><h3>${t("hw_" + k + "_h")}</h3><p>${t("hw_" + k + "_p")}${k === "off" ? " " + t("offFirstNote") : ""}${k === "inv" && HUB?.msgReady ? " " + t("hw_inv_p2") : ""}${k === "share" ? `<br><button class="btn alt" type="button" style="margin-top:8px" data-sharecopy="https://apps.capoeirabrasil.be/CongoCalender/info/">${t("shareCopy")}</button>` : ""}</p>${hwShot(k)}</section>`;
   return `<h2 class="page-h">${t("howH")}</h2><p class="note" style="margin-top:0">${t("howSub")}</p>${vgBox()}<div class="howto"><section><span class="ic">📲</span><h3>${t("install")}</h3><ol class="hw-ol"><li>${t("installIos")}</li><li>${t("installAndroid")}</li></ol></section>${S.map(sec).join("")}
     ${IS_OWNER ? `<h2 class="sub">${t("howOwner")}</h2>${vgOrgBox()}${O.map(sec).join("")}` : ""}</div>${sugBox()}`;
 }
