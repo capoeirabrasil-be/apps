@@ -9,7 +9,7 @@
     get length() { return Object.keys(SS).filter(k => k.startsWith(P)).length; } };
   try { Object.defineProperty(window, "localStorage", { value: fake, configurable: true }); } catch {}
   if (q.get("lang") && /^(en|nl|pt|fr|es|pl|uk|de)$/.test(q.get("lang"))) fake.setItem("ccc.lang", q.get("lang"));
-  if (!fake.getItem("demoInit")) { fake.setItem("demoInit", "1"); ["newsOff1", "newsPush2", "newsCar1", "newsLng1"].forEach(k => fake.setItem("ccc." + k, "1")); fake.setItem("ccc.news", "sug1"); }   // no "what is new" pop-ups: the demo shows the app as it is
+  if (!fake.getItem("demoInit")) { fake.setItem("demoInit", "1"); ["newsOff1", "newsPush2", "newsLng1"].forEach(k => fake.setItem("ccc." + k, "1")); fake.setItem("ccc.news", "sug1"); }   // no "what is new" pop-ups: the demo shows the app as it is
   window.CCC_FB_BASE = "./mock"; window.CCC_FIREBASE = {}; window.CCC_DEMO = true;
 
   const LG = (() => { const x = fake.getItem("ccc.lang") || (navigator.language || "en").slice(0, 2); return window.__DEMO_TEXTS[x] ? x : "en"; })(), X = window.__DEMO_TEXTS[LG];
@@ -69,11 +69,12 @@
   doc("going/" + ADM, { events: [], at: ago(48) });
   // car pool: next event + two past events with costs
   const car = (ev_, drv, name, seats, riders, extra) => doc(`cars/${ev_}~${drv}`, { event: ev_, driver: drv, driverName: name, seats, riders, from: "", leave: "", split: false, at: ago(60), ...extra });
-  car(E[3], "bruno@example.com", "Formiga", 3, ["carla@example.com", "gabi@example.com"], { from: "Groenplaats, Antwerpen", leave: "09:00", split: true, note: X.cn1 });
+  car(E[3], "bruno@example.com", "Formiga", 3, ["carla@example.com", "gabi@example.com"], { from: "Groenplaats, Antwerpen", leave: "09:00", split: true, note: X.cn1, rn: { "carla@example.com": "Beija-flor", "gabi@example.com": "Pitanga" } });
   car(E[3], "felipe@example.com", "Gato", 4, ["ines@example.com"], { from: "Brussel-Zuid", leave: "08:30", split: false, note: X.cn2 });
   car(E[3], "diego@example.com", "Tucano", 0, [], { byAdmin: true });
-  car(E[-2], "joao@example.com", "Cobra", 3, ["felipe@example.com", "ines@example.com"], { from: "Station Mechelen", leave: "18:00", split: true, byAdmin: false });
-  car(E[-30], MEM, "Visitante", 3, ["carla@example.com", "gabi@example.com", "elise@example.com"], { from: "Brussel-Zuid", leave: "07:00", split: true, cost: { gas: 60, toll: 12, parking: 0, other: 0, note: X.cost }, paid: ["carla@example.com"] });
+  car(E[-2], "joao@example.com", "Cobra", 3, ["felipe@example.com", "ines@example.com"], { from: "Station Mechelen", leave: "18:00", split: true, byAdmin: false, rn: { "felipe@example.com": "Gato", "ines@example.com": "Sereia" } });
+  car(E[-30], MEM, "Visitante", 3, ["carla@example.com", "gabi@example.com", "elise@example.com"], { from: "Brussel-Zuid", leave: "07:00", split: true, cost: { gas: 60, toll: 12, parking: 0, other: 0, note: X.cost }, paid: ["carla@example.com"], rn: { "carla@example.com": "Beija-flor", "gabi@example.com": "Pitanga", "elise@example.com": "Lua" } });
+  car(E[-55], ADM, "Mestre Demo", 3, ["bruno@example.com", "diego@example.com"], { from: "Antwerpen-Centraal", leave: "08:00", split: true, cost: { gas: 45, toll: 0, parking: 9, other: 0, note: X.cost }, paid: [], rn: { "bruno@example.com": "Formiga", "diego@example.com": "Tucano" } });
   car(E[-9], "hugo@example.com", "Trovão", 3, ["diego@example.com", MEM], { from: "Gent-Sint-Pieters", leave: "09:30", split: true, cost: { gas: 38.4, toll: 0, parking: 12, other: 0, note: X.cost }, paid: ["diego@example.com"] });
   car(E[-9], "elise@example.com", "Lua", 3, [], { from: "Leuven", leave: "10:00", split: false });
   // chats
@@ -96,6 +97,8 @@
   sg("s4", "bruno@example.com", "Formiga", X.s4, "new", "idea", { h: 12 });
   sg("s5", "gabi@example.com", "Pitanga", X.s5, "ask", "feedback", { question: X.s5q, reply: "", h: 25 });
   sg("s6", "hugo@example.com", "Trovão", X.s6, "nogo", "idea", { nogoComment: X.s6c, nogoAt: ago(70), h: 300 });
+  sg("s8", "hugo@example.com", "Trovão", X.s8, "done", "bug", { doneAt: ago(60), h: 240, seenBy: true, reply: "" });
+  sg("s9", ADM, "Demo Admin", X.s9, "done", "idea", { doneAt: ago(100), h: 400, seenBy: true, admin: true });
   sg("s7", "ines@example.com", "Sereia", X.s7, "new", "feedback", { h: 5, react: "like" });
   window.__DEMO = { role: AS === "admin" ? "owner" : "member", user: { email: AS === "admin" ? ADM : MEM, displayName: AS === "admin" ? "Demo Admin" : "Demo Member" }, as: AS, db };
   try { const sv = SS.getItem("demo.db"); if (sv) { const o = JSON.parse(sv); for (const k of Object.keys(db)) delete db[k]; Object.assign(db, o); } } catch {}

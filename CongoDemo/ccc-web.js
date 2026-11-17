@@ -147,6 +147,8 @@ const CARCOST_READY = true;
 const SELFDRIVE_READY = true;
 // Drivers add a free comment to their car (cars/{id}.note): needs the note field in the cars update rule. Keep false until Steven says "firestore rules updated" and the live rules match the file.
 const CARNOTE_READY = true;
+// Riders' names on the car (cars/{id}.rn {email: nickname or name}); members need a stored nickname/name to reserve a seat. Needs the cars rule that accepts the key "rn" for riders. Keep false until Steven says "firestore rules updated" and the live rules match the file.
+const CARRN_READY = true;
 const RULES_READY = true;
 // Phone push for owners: pushTokens/{email} {devices: {<deviceId>: {token, at, ua, lang}}}. Needs the pushTokens rule
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
@@ -185,7 +187,7 @@ function makeHub(user, owner) {
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
   return {
-    me, own: e => ids.includes(lc(e)), owner, msgReady: MSG_READY, chatReady: CHAT_READY, dmReady: DM_READY, rulesReady: RULES_READY, accessReady: ACCESSREQ_READY, carCostReady: CARCOST_READY, selfDriveReady: SELFDRIVE_READY, carNoteReady: CARNOTE_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
+    me, own: e => ids.includes(lc(e)), owner, msgReady: MSG_READY, chatReady: CHAT_READY, dmReady: DM_READY, rulesReady: RULES_READY, accessReady: ACCESSREQ_READY, carCostReady: CARCOST_READY, selfDriveReady: SELFDRIVE_READY, carNoteReady: CARNOTE_READY, carRnReady: CARRN_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
     watch(cb) {
       fire = () => cb(st);
       on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; st.goingRoles = s.exists() ? s.data().roles || {} : {}; fire(); });
@@ -276,13 +278,13 @@ function makeHub(user, owner) {
     // The driver (or an admin) edits seats / from / leave / split / cost / paid of one car (rules: driver or owner).
     setCarFields: (carId, patch) => F.updateDoc(F.doc(fs, "cars", String(carId)), { ...patch, at: new Date().toISOString() }),
     // First come, first served: the transaction re-reads the car, so two people can't take the last seat.
-    async seat(carId, take) {
+    async seat(carId, take, name) {
       const ref = F.doc(fs, "cars", carId);
       return F.runTransaction(fs, async tx => {
         const s = await tx.get(ref); if (!s.exists()) throw Object.assign(new Error("gone"), { code: "gone" });
         const c = s.data(), r = c.riders || [];
-        if (take) { if (r.includes(me)) return "ok"; if (r.length >= c.seats) throw Object.assign(new Error("full"), { code: "full" }); tx.update(ref, { riders: [...r, me] }); }
-        else { if (!r.includes(me)) return "ok"; tx.update(ref, { riders: r.filter(x => x !== me) }); }
+        if (take) { if (r.includes(me)) return "ok"; if (r.length >= c.seats) throw Object.assign(new Error("full"), { code: "full" }); tx.update(ref, { riders: [...r, me], ...(CARRN_READY ? { rn: { ...(c.rn || {}), [me]: String(name || "").slice(0, 60) } } : {}) }); }
+        else { if (!r.includes(me)) return "ok"; const rn = { ...(c.rn || {}) }; delete rn[me]; tx.update(ref, { riders: r.filter(x => x !== me), ...(CARRN_READY && c.rn ? { rn } : {}) }); }
         return "ok";
       });
     },
