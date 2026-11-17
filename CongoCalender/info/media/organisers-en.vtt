@@ -1,50 +1,50 @@
 WEBVTT
 
-00:00:00.753 --> 00:00:09.473
+00:00:00.752 --> 00:00:09.582
 This part is for the administrators. When an event has passed, a pop-up asks whether Congo went. Tap your answer, so the analytics stay right.
 
-00:00:09.974 --> 00:00:17.944
-Open an upcoming event and tap I'm going, confirm. That's all you need as an an administrator: there is no separate I'm going button for you.
+00:00:10.082 --> 00:00:18.632
+Open an upcoming event and tap I'm going, confirm. That's all you need as an administrator: there is no separate I'm going button for you.
 
-00:00:18.445 --> 00:00:27.305
+00:00:19.133 --> 00:00:28.253
 Plans changed? Tap Can't make it any more. Members then no longer see the event, and it doesn't count in the totals. Tap again to undo.
 
-00:00:27.806 --> 00:00:36.956
+00:00:28.755 --> 00:00:38.245
 Going to an event? Choose your role: Participant, Guest, Facilitator or Event coordinator. Each role has its own colour in the lists and in the analytics.
 
-00:00:37.457 --> 00:00:40.507
+00:00:38.746 --> 00:00:42.016
 Choose the type of event, so the colours and the counts are right.
 
-00:00:41.009 --> 00:00:47.999
+00:00:42.516 --> 00:00:49.556
 Taking the car? Fill in the free seats, where and when you leave, and tap Save. Members can then reserve a seat.
 
-00:00:48.501 --> 00:00:54.601
+00:00:50.057 --> 00:00:55.917
 The Joining tab shows, per event, who is going with their role, and who sits in which car, marked with a car.
 
-00:00:55.102 --> 00:01:08.592
-Everything for administrators is in the Admin tab. Notifications show who is joining, new ideas and built features. Below, you invite people with their Google address, and see when each person was last online.
+00:00:56.417 --> 00:01:15.087
+Everything for administrators is in the Admin tab. Notifications show who is joining, new ideas and built features. Below, you invite people with their Google address, and see when each person was last online. When someone asks for access in the app, their request appears at the very top with Accept and Decline.
 
-00:01:09.094 --> 00:01:26.144
+00:01:15.588 --> 00:01:32.948
 Bug reports from members come first, in their own list. Ideas follow below. GO means it gets built, NO GO asks you for a reason, and Elaborate sends the member a question. On a GO idea, Start build now has it built at the next hourly check; otherwise it waits for the daily update.
 
-00:01:26.645 --> 00:01:45.935
+00:01:33.449 --> 00:01:52.519
 The Admin tab also checks the public calendar of Grupo Capoeira Brasil. New events there appear in a list: tap Add to take one over, or Discard. Events whose description changed appear in a second list: tap Update description to take over the public text, or Keep to stay with ours. Both lists open and close.
 
-00:01:46.436 --> 00:01:56.776
+00:01:53.020 --> 00:02:03.250
 Got an idea yourself? Write it in the Admin feature box, add up to three screenshots, and choose Submit for the next daily build, or Build now to have it built at the next hourly check.
 
-00:01:57.277 --> 00:02:11.117
+00:02:03.751 --> 00:02:17.901
 In Analytics, administrators also see how Congo took part: per role, and per year, plus a second map with a pie at every city showing the role. Past events without a role count as Guest or workshop facilitator until you choose one in Admin.
 
-00:02:11.617 --> 00:02:23.457
-In the Joining tab, tap Message all to send everyone going to an event a message inside the app. Every event also has a group chat, and next to each name a private chat. They disappear fifteen days after the event.
+00:02:18.403 --> 00:02:40.793
+In the Joining tab, tap Message all to send everyone going to an event a message inside the app. Each event has Chat with all for the group chat, and next to each name a private chat. Events with unread messages light up: orange for the group chat, pink for a private message, and the person who wrote lights up too. Unread messages carry a New tag. They disappear fifteen days after the event.
 
-00:02:23.959 --> 00:02:35.959
+00:02:41.293 --> 00:02:53.473
 In the invited list, each person has buttons: Message, Login, to change the email they sign in with, and Revoke, which asks you to confirm. Under the name you also see what kind of phone they use.
 
-00:02:36.461 --> 00:02:43.951
+00:02:53.974 --> 00:03:01.674
 At the top of Settings, switch on View as a member to see the app exactly as a member sees it. Switch it off to come back as administrator.
 
-00:02:44.451 --> 00:02:56.671
+00:03:02.174 --> 00:03:14.814
 Finally, turn on phone notifications. Open the app from your home screen and tap Turn on notifications. You then get a pop-up when someone joins your car, or when a new idea or bug report arrives.
 

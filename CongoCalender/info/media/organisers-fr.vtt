@@ -1,50 +1,50 @@
 WEBVTT
 
-00:00:00.753 --> 00:00:11.533
+00:00:00.752 --> 00:00:11.912
 Cette partie est pour les administrateurs. Quand un événement est passé, une fenêtre demande si Congo y est allé. Touchez votre réponse, pour que les statistiques restent justes.
 
-00:00:12.034 --> 00:00:20.724
+00:00:12.413 --> 00:00:21.423
 Ouvrez un événement à venir et touchez J'y vais, confirmer. C'est tout ce qu'il faut en tant qu'administrateur : il n'y a pas de bouton J'y vais séparé pour vous.
 
-00:00:21.225 --> 00:00:30.025
+00:00:21.923 --> 00:00:30.853
 Vos plans changent ? Touchez Je ne peux plus. Les membres ne voient alors plus l'événement, et il ne compte pas dans les totaux. Touchez à nouveau pour annuler.
 
-00:00:30.527 --> 00:00:41.267
+00:00:31.353 --> 00:00:42.303
 Tu vas à un événement ? Choisis ton rôle : Participant, Invité, Facilitateur ou Coordinateur de l'événement. Chaque rôle a sa couleur dans les listes et dans les statistiques.
 
-00:00:41.769 --> 00:00:45.939
+00:00:42.804 --> 00:00:46.964
 Choisissez le type d'événement, pour que les couleurs et les comptes soient justes.
 
-00:00:46.440 --> 00:00:55.920
+00:00:47.464 --> 00:00:57.044
 Vous prenez la voiture ? Indiquez les places libres, d'où et à quelle heure vous partez, et touchez Enregistrer. Les membres peuvent alors réserver une place.
 
-00:00:56.420 --> 00:01:02.820
+00:00:57.545 --> 00:01:04.215
 L’onglet Qui vient montre, par événement, qui y va avec son rôle, et qui est dans quelle voiture, marqué d’une voiture.
 
-00:01:03.320 --> 00:01:18.180
-Tout pour les administrateurs se trouve dans l'onglet Admin. Les notifications montrent qui vient, les nouvelles idées et les fonctions ajoutées. Plus bas, vous invitez des personnes avec leur adresse Google, et voyez quand chacun était en ligne pour la dernière fois.
+00:01:04.715 --> 00:01:25.235
+Tout pour les administrateurs se trouve dans l'onglet Admin. Les notifications montrent qui vient, les nouvelles idées et les fonctions ajoutées. Plus bas, vous invitez des personnes avec leur adresse Google, et voyez quand chacun était en ligne pour la dernière fois. Quand quelqu'un demande l'accès dans l'appli, la demande apparaît tout en haut avec Accepter et Refuser.
 
-00:01:18.681 --> 00:01:39.521
+00:01:25.736 --> 00:01:46.836
 Les signalements de bugs des membres viennent en premier, dans leur propre liste. Les idées suivent en dessous. GO veut dire qu'elle sera réalisée, NO GO vous demande un motif, et Préciser envoie une question au membre. Sur une idée en GO, Construire maintenant la fait réaliser à la prochaine vérification horaire ; sinon elle attend la mise à jour quotidienne.
 
-00:01:40.021 --> 00:02:02.771
+00:01:47.337 --> 00:02:10.077
 L’onglet Admin vérifie aussi l’agenda public du Grupo Capoeira Brasil. Les nouveaux événements apparaissent dans une liste : touche Ajouter pour en reprendre un, ou Ignorer. Les événements dont la description a changé apparaissent dans une seconde liste : touche Mettre à jour la description pour reprendre le texte public, ou Garder pour conserver le nôtre. Les deux listes s’ouvrent et se ferment.
 
-00:02:03.272 --> 00:02:15.912
+00:02:10.578 --> 00:02:23.368
 Tu as une idée ? Écris-la dans la zone Fonction admin, ajoute jusqu’à trois captures d’écran et choisis Envoyer pour la prochaine construction quotidienne, ou Construire maintenant pour la faire réaliser à la prochaine vérification horaire.
 
-00:02:16.413 --> 00:02:32.533
+00:02:23.874 --> 00:02:39.614
 Dans Statistiques, les administrateurs voient aussi comment Congo a participé : par rôle et par année, plus une seconde carte avec un camembert dans chaque ville montrant le rôle. Les événements passés sans rôle comptent comme Invité ou animateur d’atelier tant que tu n’en choisis pas un dans Admin.
 
-00:02:33.034 --> 00:02:47.814
-Dans l'onglet Qui vient, touchez Message à tous pour envoyer à tous ceux qui vont à un événement un message dans l'appli. Chaque événement a aussi un chat de groupe, et à côté de chaque nom un chat privé. Ils disparaissent quinze jours après l'événement.
+00:02:40.115 --> 00:03:07.565
+Dans l'onglet Qui vient, touchez Message à tous pour envoyer à tous ceux qui vont à un événement un message dans l'appli. Chaque événement a Chat avec tous pour le chat de groupe, et à côté de chaque nom un chat privé. Les événements avec des messages non lus s'illuminent : orange pour le chat de groupe, rose pour un message privé, et la personne qui a écrit s'illumine aussi. Les messages non lus portent l'étiquette Nouveau. Ils disparaissent quinze jours après l'événement.
 
-00:02:48.321 --> 00:03:01.901
+00:03:08.066 --> 00:03:21.926
 Dans la liste des invités, chaque personne a des boutons : Message, Connexion, pour changer l'e-mail avec lequel elle se connecte, et Révoquer, qui demande confirmation. Sous le nom, vous voyez aussi le type de téléphone utilisé.
 
-00:03:02.402 --> 00:03:10.972
+00:03:22.427 --> 00:03:31.377
 En haut des Réglages, activez Voir comme un membre pour voir l'appli exactement comme un membre. Désactivez pour revenir en administrateur.
 
-00:03:11.472 --> 00:03:25.642
+00:03:31.878 --> 00:03:45.778
 Pour finir, activez les notifications sur votre téléphone. Ouvrez l'app depuis l'écran d'accueil et touchez Activer les notifications. Vous recevez alors une alerte quand quelqu'un monte dans votre voiture, ou qu'une nouvelle idée ou un bug arrive.
 
