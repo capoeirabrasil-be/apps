@@ -145,6 +145,8 @@ const ACCESSREQ_READY = true;
 const CARCOST_READY = true;
 // Members choose for themselves to be a driver (needs the cars create/delete rule): keep false until Steven says "firestore rules updated" and the live rules match the file.
 const SELFDRIVE_READY = true;
+// Drivers add a free comment to their car (cars/{id}.note): needs the note field in the cars update rule. Keep false until Steven says "firestore rules updated" and the live rules match the file.
+const CARNOTE_READY = false;
 const RULES_READY = true;
 // Phone push for owners: pushTokens/{email} {devices: {<deviceId>: {token, at, ua, lang}}}. Needs the pushTokens rule
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
@@ -183,7 +185,7 @@ function makeHub(user, owner) {
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
   return {
-    me, own: e => ids.includes(lc(e)), owner, msgReady: MSG_READY, chatReady: CHAT_READY, dmReady: DM_READY, rulesReady: RULES_READY, accessReady: ACCESSREQ_READY, carCostReady: CARCOST_READY, selfDriveReady: SELFDRIVE_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
+    me, own: e => ids.includes(lc(e)), owner, msgReady: MSG_READY, chatReady: CHAT_READY, dmReady: DM_READY, rulesReady: RULES_READY, accessReady: ACCESSREQ_READY, carCostReady: CARCOST_READY, selfDriveReady: SELFDRIVE_READY, carNoteReady: CARNOTE_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
     watch(cb) {
       fire = () => cb(st);
       on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; st.goingRoles = s.exists() ? s.data().roles || {} : {}; fire(); });
