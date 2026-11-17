@@ -21,6 +21,7 @@ h1{font-size:24px;line-height:1.15}
 details.install{margin-top:28px;background:var(--card);border-radius:18px;padding:14px 16px}
 details.install summary{cursor:pointer;font-weight:700}details.install h3{font-size:15px;margin:14px 0 4px;color:var(--accent)}
 details.install ol{margin:0;padding-left:20px;color:var(--soft);font-size:14px}details.install li{margin:3px 0}
+h2.sec{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:26px 4px 10px}h2.sec:first-child{margin-top:4px}
 .open:hover{background:var(--accent2)}.empty{color:var(--muted)}
 </style></head>
 <body><main>
@@ -83,7 +84,9 @@ details.install ol{margin:0;padding-left:20px;color:var(--soft);font-size:14px}d
     }
     var list = document.getElementById("list");
     if (!apps.length) { list.innerHTML = '<p class="empty">No apps yet.</p>'; return; }
-    list.innerHTML = apps.map(function(a){
+    // Sections, in this order. An app's "section" is congo, friends or other (default: other).
+    var SECTIONS = [["congo","Congo Apps"],["friends","Congo's Friends Apps"],["other","Other Useful Apps"]];
+    function card(a){
       var b = best(a);
       var icon = a.icon
         ? '<img class="icon" src="'+esc(a.icon)+'" alt="" loading="lazy">'
@@ -96,6 +99,13 @@ details.install ol{margin:0;padding-left:20px;color:var(--soft);font-size:14px}d
         (a.description ? '<small>'+esc(a.description)+'</small>' : '')+
         (links.length > 1 ? '<div class="links">'+links.join("")+'</div>' : '')+
         '</div>'+(b ? '<a class="open" href="'+esc(b.url)+'" title="'+esc(b.label)+'">Open</a>' : '')+'</div>';
+    }
+    list.innerHTML = SECTIONS.map(function(sec){
+      var mine = apps.filter(function(a){
+        var k = SECTIONS.some(function(x){return x[0] === a.section;}) ? a.section : "other";
+        return k === sec[0];
+      });
+      return mine.length ? '<h2 class="sec">'+sec[1]+'</h2>'+mine.map(card).join("") : '';
     }).join("");
   }).catch(function(){
     document.getElementById("list").innerHTML = '<p class="empty">Could not load the app list.</p>';
