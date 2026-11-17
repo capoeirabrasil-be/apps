@@ -1,5 +1,5 @@
 // CCC service worker. Page: network first (fresh daily data), offline fallback. Images/fonts/libs: cache first.
-const C = "ccc-8c47365bfa";
+const C = "ccc-c2d3026d70";
 self.addEventListener("install", e => { self.skipWaiting(); e.waitUntil(caches.open(C).then(c => c.addAll(["./", "img/icon-192.png"]))); });
 self.addEventListener("activate", e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 // Background refresh of the app page (Available offline on): tell the open pages "updating", then "current" or "updated" (a newer copy is stored: the page reloads at a quiet moment).
@@ -28,6 +28,7 @@ self.addEventListener("fetch", e => {
       return fetch(r).then(res => { const cp = res.clone(); caches.open(C).then(c => c.put("./", cp)); return res; }).catch(() => caches.match("./")); })()); return; }
     e.respondWith(fetch(r).then(res => { if (app) { const cp = res.clone(); caches.open(C).then(c => c.put("./", cp)); } return res; }).catch(() => app ? caches.match("./") : caches.match(r))); return; }
   const u = new URL(r.url);
+  if (u.origin === location.origin && /\/offline-sizes\.json$/.test(u.pathname)) return;   // always fresh from the network: it is recalculated every hour (cache-first made the sizes stale for ever)
   if (u.origin !== location.origin && !/(^|\.)(gstatic\.com|googleapis\.com|cdnjs\.cloudflare\.com)$/.test(u.hostname)) return;
   if (/firestore|identitytoolkit|securetoken|apis\.google/.test(u.hostname)) return;
   e.respondWith(caches.match(r).then(hit => hit || fetch(r).then(res => { if (res.ok || res.type === "opaque") { const cp = res.clone(); caches.open(C).then(c => c.put(r, cp)); } return res; })));

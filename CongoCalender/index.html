@@ -914,7 +914,7 @@ const goBadge = e => !IS_OWNER && isGoing(e) ? `<span class="gobadge">🙋 ${t("
 const phoneOf = em => { const sp = HUBST.seen?.[String(em || "").toLowerCase()]?.phone; const d = Object.values(HUBST.tokens?.[String(em || "").toLowerCase()]?.devices || {}); return d.map(x => { const u = String(x.ua || ""); const m = /Android[^;)]*;\s*([^;)]+)/.exec(u); return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" + (m && !/^(K|Mobile)$/.test(m[1].trim()) ? " (" + m[1].trim() + ")" : "") : /Windows|Macintosh|Linux/.test(u) ? "Computer" : "?"; }).join(", ") || sp || ""; };
 const phoneLine = em => { const p = phoneOf(em); return p ? `<small class="phone">📱 ${esc(p)}</small>` : ""; };
 const invName = em => { const p = HUBST.profiles?.[String(em || "").toLowerCase()] || {}, c = (p.capo || "").trim(), n = `${p.first || ""} ${p.last || ""}`.trim(); const v = c && n ? `${c} · ${n}` : c || n; return v ? `<small class="invnm">👤 ${esc(v)}</small>` : ""; };
-const APP_VER = /*APPVER*/"1.57.26"/*ENDAPPVER*/;
+const APP_VER = /*APPVER*/"1.57.27"/*ENDAPPVER*/;
 const dispName = em => { const p = HUBST.profiles[em] || (HUB && em === HUB.me ? HUBST.profile : null) || {}; return (p.capo || "").trim() || `${p.first || ""} ${p.last || ""}`.trim() || em; };
 const myName = () => { const p = HUBST.profile || {}; return (p.capo || "").trim() || `${p.first || ""} ${p.last || ""}`.trim() || ME_NAME || ME_EMAIL; };
 let PROF_OK = false;
