@@ -1,5 +1,5 @@
 {
-  "_help": "One block per app. Leave a link empty (\"\") if it does not exist. icon = file in launchpad/icons/ or a full https link. id = short name used in links like apps.capoeirabrasil.be/launchpad/?app=congo-calendar. section = congo, friends or other (Congo Apps / Congo's Friends Apps / Other Useful Apps).",
+  "_help": "One block per app. Leave a link empty (\"\") if it does not exist. icon = file in launchpad/icons/ or a full https link. id = short name used in links like apps.capoeirabrasil.be/launchpad/?app=congo-calendar. section = congo, friends or other (Congo Apps / Congo's Friends Apps / Other Useful Apps). hidden = true to show the app only on the owner's phone (not secret: it is still in this public file).",
   "_example_copy_me": {
     "section": "friends",
     "id": "example-app",

@@ -22,6 +22,7 @@ details.install{margin-top:28px;background:var(--card);border-radius:18px;paddin
 details.install summary{cursor:pointer;font-weight:700}details.install h3{font-size:15px;margin:14px 0 4px;color:var(--accent)}
 details.install ol{margin:0;padding-left:20px;color:var(--soft);font-size:14px}details.install li{margin:3px 0}
 h2.sec{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:26px 4px 10px}h2.sec:first-child{margin-top:4px}
+.tag{font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px;vertical-align:middle}
 .open:hover{background:var(--accent2)}.empty{color:var(--muted)}
 </style></head>
 <body><main>
@@ -73,8 +74,21 @@ h2.sec{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--
   }
   function esc(s){return String(s||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 
-  fetch("apps.json", {cache:"no-cache"}).then(function(r){return r.json();}).then(function(data){
-    var apps = (data.apps || []).filter(function(a){return a && a.name;});
+  // Owner mode: open the launchpad once with ?owner=<key> on your own phone to see hidden apps there.
+  // ?owner=off switches it off again. Only a hash of the key is stored here.
+  var OWNER_HASH = "95d944aae445164b9a43e9a1ec38666e2c72b959c63d44fdf958b29d747a4848";
+  var qs = new URLSearchParams(location.search), ownerKey = qs.get("owner");
+  function sha(t){ return crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)).then(function(b){
+    return Array.prototype.map.call(new Uint8Array(b), function(x){return ("0"+x.toString(16)).slice(-2);}).join(""); }); }
+  var ownerReady = !ownerKey ? Promise.resolve() :
+    ownerKey === "off" ? Promise.resolve(localStorage.removeItem("lp-owner")) :
+    sha(ownerKey).then(function(h){ if (h === OWNER_HASH) localStorage.setItem("lp-owner", "1"); }).catch(function(){});
+  ownerReady.then(function(){
+    if (ownerKey && history.replaceState) { qs.delete("owner"); history.replaceState(null, "", location.pathname + (qs.toString() ? "?"+qs : "")); }
+    return fetch("apps.json", {cache:"no-cache"});
+  }).then(function(r){return r.json();}).then(function(data){
+    var owner = localStorage.getItem("lp-owner") === "1";
+    var apps = (data.apps || []).filter(function(a){return a && a.name && (owner || !a.hidden);});
     // apps.capoeirabrasil.be/launchpad/?app=<id> sends the visitor straight to the right place.
     var want = new URLSearchParams(location.search).get("app");
     if (want) {
