@@ -149,6 +149,8 @@ const SELFDRIVE_READY = true;
 const CARNOTE_READY = true;
 // Riders' names on the car (cars/{id}.rn {email: nickname or name}); members need a stored nickname/name to reserve a seat. Needs the cars rule that accepts the key "rn" for riders. Keep false until Steven says "firestore rules updated" and the live rules match the file.
 const CARRN_READY = true;
+// Members delete their own rejected (NO GO) idea or bug: needs the suggestions delete rule. Keep false until Steven says "firestore rules updated" and the live rules match the file.
+const SUGDEL_READY = false;
 const RULES_READY = true;
 // Phone push for owners: pushTokens/{email} {devices: {<deviceId>: {token, at, ua, lang}}}. Needs the pushTokens rule
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
@@ -187,7 +189,7 @@ function makeHub(user, owner) {
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
   return {
-    me, own: e => ids.includes(lc(e)), owner, msgReady: MSG_READY, chatReady: CHAT_READY, dmReady: DM_READY, rulesReady: RULES_READY, accessReady: ACCESSREQ_READY, carCostReady: CARCOST_READY, selfDriveReady: SELFDRIVE_READY, carNoteReady: CARNOTE_READY, carRnReady: CARRN_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
+    me, own: e => ids.includes(lc(e)), owner, msgReady: MSG_READY, chatReady: CHAT_READY, dmReady: DM_READY, rulesReady: RULES_READY, accessReady: ACCESSREQ_READY, carCostReady: CARCOST_READY, selfDriveReady: SELFDRIVE_READY, carNoteReady: CARNOTE_READY, carRnReady: CARRN_READY, sugDelReady: SUGDEL_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
     watch(cb) {
       fire = () => cb(st);
       on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; st.goingRoles = s.exists() ? s.data().roles || {} : {}; fire(); });
@@ -249,6 +251,7 @@ function makeHub(user, owner) {
     delFlyer: async id => { id = String(id); await F.deleteDoc(F.doc(fs, "flyerImg", id)); await F.setDoc(F.doc(fs, "flyers", id), { has: false, imgRemovedAt: new Date().toISOString() }, { merge: true }); },
     suggest: (text, byName, kind, shots) => F.addDoc(F.collection(fs, "suggestions"), { text: String(text).slice(0, 2000), by: real, byName: String(byName || "").slice(0, 80), at: new Date().toISOString(), status: "new", kind: kind === "bug" || kind === "feedback" ? kind : "idea", ...((kind === "bug" || kind !== "feedback") && Array.isArray(shots) && shots.length ? { shots: shots.filter(x => typeof x === "string" && x.startsWith("data:image/")).slice(0, 3) } : {}) }),
     sugReply: (id, reply) => F.updateDoc(F.doc(fs, "suggestions", id), { reply: String(reply).slice(0, 2000), status: "answered", repliedAt: new Date().toISOString() }),
+    sugDelete: id => F.deleteDoc(F.doc(fs, "suggestions", String(id))),
     sugSeen: (id, field) => F.updateDoc(F.doc(fs, "suggestions", id), { [field === "seenNogo" ? "seenNogo" : "seenBy"]: true }),
     sugResubmit: (id, text) => F.updateDoc(F.doc(fs, "suggestions", id), { text: String(text).slice(0, 2000), status: "new", resubmittedAt: new Date().toISOString(), seenNogo: true }),
     sugSet: (id, data) => F.updateDoc(F.doc(fs, "suggestions", id), { ...data, by_owner: real, changedAt: new Date().toISOString() }),
