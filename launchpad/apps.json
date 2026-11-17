@@ -1,0 +1,23 @@
+{
+  "_help": "One block per app. Leave a link empty (\"\") if it does not exist. icon = file in launchpad/icons/ or a full https link. id = short name used in links like apps.capoeirabrasil.be/launchpad/?app=congo-calendar",
+  "_example_copy_me": {
+    "id": "example-app",
+    "name": "Example app (replace me)",
+    "description": "Short line about the app",
+    "icon": "",
+    "web": "https://example.com",
+    "appstore": "https://apps.apple.com/app/id000000000",
+    "playstore": "https://play.google.com/store/apps/details?id=com.example.app"
+  },
+  "apps": [
+    {
+      "id": "congo-calendar",
+      "name": "Congo Capoeira Calendar",
+      "description": "Rodas, encontros, workshops and formaturas",
+      "icon": "icons/congo-calendar.png",
+      "web": "https://apps.capoeirabrasil.be/CongoCalender/",
+      "appstore": "",
+      "playstore": ""
+    }
+  ]
+}
