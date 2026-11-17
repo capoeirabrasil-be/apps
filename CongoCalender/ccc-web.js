@@ -146,7 +146,7 @@ const CARCOST_READY = true;
 // Members choose for themselves to be a driver (needs the cars create/delete rule): keep false until Steven says "firestore rules updated" and the live rules match the file.
 const SELFDRIVE_READY = true;
 // Drivers add a free comment to their car (cars/{id}.note): needs the note field in the cars update rule. Keep false until Steven says "firestore rules updated" and the live rules match the file.
-const CARNOTE_READY = false;
+const CARNOTE_READY = true;
 const RULES_READY = true;
 // Phone push for owners: pushTokens/{email} {devices: {<deviceId>: {token, at, ua, lang}}}. Needs the pushTokens rule
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
