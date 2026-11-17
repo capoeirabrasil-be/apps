@@ -135,7 +135,7 @@ function collectionAdapter(name) {
 // Access requests (accessreq/{email}) need a rules block: stays off until Steven confirms "Firestore rules updated".
 const ACCESSREQ_READY = true;
 // Drivers, car cost sharing and paid marks (cars/{id} updates by the driver) need a rules block: off until Steven confirms "Firestore rules updated".
-const CARCOST_READY = false;
+const CARCOST_READY = true;
 const RULES_READY = true;
 // Phone push for owners: pushTokens/{email} {devices: {<deviceId>: {token, at, ua, lang}}}. Needs the pushTokens rule
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
