@@ -137,7 +137,7 @@ const ACCESSREQ_READY = true;
 // Drivers, car cost sharing and paid marks (cars/{id} updates by the driver) need a rules block: off until Steven confirms "Firestore rules updated".
 const CARCOST_READY = true;
 // Members choose for themselves to be a driver (needs the cars create/delete rule): keep false until Steven says "firestore rules updated" and the live rules match the file.
-const SELFDRIVE_READY = false;
+const SELFDRIVE_READY = true;
 const RULES_READY = true;
 // Phone push for owners: pushTokens/{email} {devices: {<deviceId>: {token, at, ua, lang}}}. Needs the pushTokens rule
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
