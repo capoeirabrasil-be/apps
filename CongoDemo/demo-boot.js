@@ -64,7 +64,7 @@
   doc("added/addDemo1", { title: X.addT, start: ymd(17), end: ymd(17), time: "20:00", place: "Mechelen", cc: "BE", location: "Café De Roda", description: X.addD, type: "roda", calendar: "pending", at: ago(20) });
 
   // who goes where
-  const going = { [MEM]: [E[3], E[24], E[-9]], "bruno@example.com": [E[3], E[10]], "carla@example.com": [E[3], E[24], E[59]], "diego@example.com": [E[3], E[-9]], "elise@example.com": [E[10], E[24], E[-9]], "felipe@example.com": [E[3], E[-2]], "gabi@example.com": [E[3], E[59], E[-2]], "hugo@example.com": [E[24], E[-9]], "ines@example.com": [E[3], E[-2]], "joao@example.com": [E[-2], E[-9]] };
+  const going = { [MEM]: [E[3], E[24], E[-9], E[-30]], "bruno@example.com": [E[3], E[10]], "carla@example.com": [E[3], E[24], E[59]], "diego@example.com": [E[3], E[-9]], "elise@example.com": [E[10], E[24], E[-9]], "felipe@example.com": [E[3], E[-2]], "gabi@example.com": [E[3], E[59], E[-2]], "hugo@example.com": [E[24], E[-9]], "ines@example.com": [E[3], E[-2]], "joao@example.com": [E[-2], E[-9]] };
   Object.entries(going).forEach(([e, ids]) => doc("going/" + e, { events: ids, at: ago(48) }));
   doc("going/" + ADM, { events: [], at: ago(48) });
   // car pool: next event + two past events with costs
@@ -73,6 +73,7 @@
   car(E[3], "felipe@example.com", "Gato", 4, ["ines@example.com"], { from: "Brussel-Zuid", leave: "08:30", split: false, note: X.cn2 });
   car(E[3], "diego@example.com", "Tucano", 0, [], { byAdmin: true });
   car(E[-2], "joao@example.com", "Cobra", 3, ["felipe@example.com", "ines@example.com"], { from: "Station Mechelen", leave: "18:00", split: true, byAdmin: false });
+  car(E[-30], MEM, "Visitante", 3, ["carla@example.com", "gabi@example.com", "elise@example.com"], { from: "Brussel-Zuid", leave: "07:00", split: true, cost: { gas: 60, toll: 12, parking: 0, other: 0, note: X.cost }, paid: ["carla@example.com"] });
   car(E[-9], "hugo@example.com", "Trovão", 3, ["diego@example.com", MEM], { from: "Gent-Sint-Pieters", leave: "09:30", split: true, cost: { gas: 38.4, toll: 0, parking: 12, other: 0, note: X.cost }, paid: ["diego@example.com"] });
   car(E[-9], "elise@example.com", "Lua", 3, [], { from: "Leuven", leave: "10:00", split: false });
   // chats
