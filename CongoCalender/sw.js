@@ -1,5 +1,5 @@
 // CCC service worker. Page: network first (fresh daily data), offline fallback. Images/fonts/libs: cache first.
-const C = "ccc-0e26ecd89d";
+const C = "ccc-a7b923b5cc";
 self.addEventListener("install", e => { self.skipWaiting(); e.waitUntil(caches.open(C).then(c => c.addAll(["./", "img/icon-192.png"]))); });
 self.addEventListener("activate", e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 // Background refresh of the app page (Available offline on): tell the open pages "updating", then "current" or "updated" (a newer copy is stored: the page reloads at a quiet moment).
