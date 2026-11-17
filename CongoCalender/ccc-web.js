@@ -134,6 +134,8 @@ function collectionAdapter(name) {
 // Bump RULES_READY to true only after that confirmation (and a check that the live rules match firestore.rules.final).
 // Access requests (accessreq/{email}) need a rules block: stays off until Steven confirms "Firestore rules updated".
 const ACCESSREQ_READY = true;
+// Drivers, car cost sharing and paid marks (cars/{id} updates by the driver) need a rules block: off until Steven confirms "Firestore rules updated".
+const CARCOST_READY = false;
 const RULES_READY = true;
 // Phone push for owners: pushTokens/{email} {devices: {<deviceId>: {token, at, ua, lang}}}. Needs the pushTokens rule
 // and the public web push (VAPID) key in firebase-config.js. Off until Steven says "firestore rules updated".
@@ -172,7 +174,7 @@ function makeHub(user, owner) {
   let fire = () => {};
   const on = (ref, f) => subs.push(F.onSnapshot(ref, f, () => {}));
   return {
-    me, own: e => ids.includes(lc(e)), owner, msgReady: MSG_READY, chatReady: CHAT_READY, dmReady: DM_READY, rulesReady: RULES_READY, accessReady: ACCESSREQ_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
+    me, own: e => ids.includes(lc(e)), owner, msgReady: MSG_READY, chatReady: CHAT_READY, dmReady: DM_READY, rulesReady: RULES_READY, accessReady: ACCESSREQ_READY, carCostReady: CARCOST_READY, flyersReady: FLYERS_READY, descsReady: DESC_READY,
     watch(cb) {
       fire = () => cb(st);
       on(F.doc(fs, "going", me), s => { st.going = s.exists() ? s.data().events || [] : []; st.goingRoles = s.exists() ? s.data().roles || {} : {}; fire(); });
@@ -246,14 +248,22 @@ function makeHub(user, owner) {
       await F.updateDoc(r, { status: "go", buildNow: !!now, notified: "go", goAt: at, by_owner: real, changedAt: at });
     },
     setProfile: p => F.setDoc(F.doc(fs, "profiles", me), { first: String(p.first || "").slice(0, 60), last: String(p.last || "").slice(0, 60), capo: String(p.capo || "").slice(0, 60), at: new Date().toISOString() }),
-    async setCar(event, seats, driverName, from = "", leave = "") {
+    async setCar(event, seats, driverName, from = "", leave = "", split) {
       const ref = F.doc(fs, "cars", `${event}~${me}`);
       if (!seats) return F.deleteDoc(ref);
       await F.runTransaction(fs, async tx => {
         const s = await tx.get(ref); const riders = s.exists() ? s.data().riders || [] : [];
-        tx.set(ref, { event, driver: me, driverName: driverName || "", seats: Math.max(seats, riders.length), riders, from: String(from).slice(0, 120), leave: String(leave).slice(0, 5), at: new Date().toISOString() });
+        tx.set(ref, { event, driver: me, driverName: driverName || "", seats: Math.max(seats, riders.length), riders, from: String(from).slice(0, 120), leave: String(leave).slice(0, 5), at: new Date().toISOString(), ...(split === undefined ? {} : { split: !!split }) }, { merge: true });
       });
     },
+    // Admins pick who drives to an event: creates (or removes) cars/{event~driver}; the driver then sets seats, cost sharing and costs.
+    async setDriver(event, email, name, on) {
+      const ref = F.doc(fs, "cars", `${event}~${lc(email)}`);
+      if (!on) return F.deleteDoc(ref);
+      await F.runTransaction(fs, async tx => { const s = await tx.get(ref); if (!s.exists()) tx.set(ref, { event, driver: lc(email), driverName: String(name || "").slice(0, 60), seats: 0, riders: [], from: "", leave: "", split: false, byAdmin: true, at: new Date().toISOString() }); });
+    },
+    // The driver (or an admin) edits seats / from / leave / split / cost / paid of one car (rules: driver or owner).
+    setCarFields: (carId, patch) => F.updateDoc(F.doc(fs, "cars", String(carId)), { ...patch, at: new Date().toISOString() }),
     // First come, first served: the transaction re-reads the car, so two people can't take the last seat.
     async seat(carId, take) {
       const ref = F.doc(fs, "cars", carId);
