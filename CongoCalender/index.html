@@ -1035,7 +1035,7 @@ function sugBox() {
     <form id="sugform"><label class="lbl" style="display:block;margin-bottom:4px">${t("sugKind")}</label><select name="kind" class="sgkind"><option value="feedback">${t("kFb")}</option><option value="bug">${t("kBug")}</option><option value="idea">${t("kIdea")}</option></select><textarea name="text" rows="3" maxlength="2000" placeholder="${t("sugPhFb")}" required></textarea><label class="shotpick" hidden>${t("shotAdd")}<input type="file" name="shots" accept="image/*" multiple><small class="shotn"></small></label><div class="actions"><button class="btn" type="submit">${t("sugSend")}</button><span class="hubmsg" id="sugmsg">${SUG_OK ? t("sugThanks") : ""}</span></div></form>
     ${mine.length ? (() => {
       const dn = x => x.status === "done", act = mine.filter(x => !dn(x)), fixed = mine.filter(x => dn(x) && x.kind === "bug"), inst = mine.filter(x => dn(x) && x.kind !== "bug");
-      const grp = (k, h, a) => a.length ? `<details class="sgdone" data-sgd="${k}"${SGD.has(k) ? " open" : ""}><summary>${h} (${a.length})</summary><ul class="suglist">${a.map(li).join("")}</ul></details>` : "";
+      const grp = (k, h, a) => a.length && !isOff() ? `<details class="sgdone" data-sgd="${k}"${SGD.has(k) ? " open" : ""}><summary>${h} (${a.length})</summary><ul class="suglist">${a.map(li).join("")}</ul></details>` : "";
       return `<div class="lbl" style="margin-top:12px">${t("sugMine")}</div>${act.length ? `<ul class="suglist">${act.map(li).join("")}</ul>` : ""}${grp("inst", "✨ " + t("sugInstH"), inst)}${grp("fix", "🐞 " + t("sugFixH"), fixed)}`;
     })() : ""}
   </section>`;
