@@ -59,6 +59,8 @@
 
   // confirmed (Congo goes), with how he goes
   data.confirmed.forEach(id => doc("confirmed/" + id, { confirmed: true, missed: false, title: meta[id].t, start: ev.find(x => x.id === id).start, at: ago(500), role: id === E[24] ? "teacher" : "special" }));
+  doc("confirmed/" + E[10], { confirmed: false, missed: false, maybe: true, title: meta[E[10]].t, start: ymd(10), at: ago(300) });
+  doc("flyers/pub-demo1", { pub: true, gid: "demo1", kind: "new", status: "open", title: "Festival Example - Demo Group - Lisboa", start: ymd(200), end: ymd(203), loc: "Lisboa", at: ago(100), desc: "Example public event (fake data)." });
   doc("confirmed/" + E[-80], { confirmed: false, missed: true, title: meta[E[-80]].t, start: ymd(-80), at: ago(2500) });
   // an event an admin added that is waiting to join the official calendar
   doc("added/addDemo1", { title: X.addT, start: ymd(17), end: ymd(17), time: "20:00", place: "Mechelen", cc: "BE", location: "Café De Roda", description: X.addD, type: "roda", calendar: "pending", at: ago(20) });
