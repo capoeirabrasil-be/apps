@@ -74,6 +74,7 @@
   car(E[3], "bruno@example.com", "Formiga", 3, ["carla@example.com", "gabi@example.com"], { from: "Groenplaats, Antwerpen", leave: "09:00", split: true, note: X.cn1, rn: { "carla@example.com": "Beija-flor", "gabi@example.com": "Pitanga" } });
   car(E[3], "felipe@example.com", "Gato", 4, ["ines@example.com"], { from: "Brussel-Zuid", leave: "08:30", split: false, note: X.cn2 });
   car(E[3], "diego@example.com", "Tucano", 0, [], { byAdmin: true });
+  car(E[24], MEM, "Visitante", 3, ["brasa@example.com"], { from: "Brussel-Zuid", leave: "08:00", split: false, rn: { "brasa@example.com": "Brasa" } });
   car(E[-2], "joao@example.com", "Cobra", 3, ["felipe@example.com", "ines@example.com"], { from: "Station Mechelen", leave: "18:00", split: true, byAdmin: false, rn: { "felipe@example.com": "Gato", "ines@example.com": "Sereia" } });
   car(E[-30], MEM, "Visitante", 3, ["carla@example.com", "gabi@example.com", "elise@example.com"], { from: "Brussel-Zuid", leave: "07:00", split: true, cost: { gas: 60, toll: 12, parking: 0, other: 0, note: X.cost }, paid: ["carla@example.com"], rn: { "carla@example.com": "Beija-flor", "gabi@example.com": "Pitanga", "elise@example.com": "Lua" } });
   car(E[-55], ADM, "Mestre Demo", 3, ["bruno@example.com", "diego@example.com"], { from: "Antwerpen-Centraal", leave: "08:00", split: true, cost: { gas: 45, toll: 0, parking: 9, other: 0, note: X.cost }, paid: [], rn: { "bruno@example.com": "Formiga", "diego@example.com": "Tucano" } });
