@@ -919,7 +919,7 @@ const goBadge = e => !IS_OWNER && isGoing(e) ? `<span class="gobadge">🙋 ${t("
 const phoneOf = em => { const sp = HUBST.seen?.[String(em || "").toLowerCase()]?.phone; const d = Object.values(HUBST.tokens?.[String(em || "").toLowerCase()]?.devices || {}); return d.map(x => { const u = String(x.ua || ""); const m = /Android[^;)]*;\s*([^;)]+)/.exec(u); return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" + (m && !/^(K|Mobile)$/.test(m[1].trim()) ? " (" + m[1].trim() + ")" : "") : /Windows|Macintosh|Linux/.test(u) ? "Computer" : "?"; }).join(", ") || sp || ""; };
 const phoneLine = em => { const p = phoneOf(em); return p ? `<small class="phone">📱 ${esc(p)}</small>` : ""; };
 const invName = em => { const p = HUBST.profiles?.[String(em || "").toLowerCase()] || {}, c = (p.capo || "").trim(), n = `${p.first || ""} ${p.last || ""}`.trim(); const v = c && n ? `${c} · ${n}` : c || n; return v ? `<small class="invnm">👤 ${esc(v)}</small>` : ""; };
-const APP_VER = /*APPVER*/"1.66.34"/*ENDAPPVER*/;
+const APP_VER = /*APPVER*/"1.66.35"/*ENDAPPVER*/;
 const rnName = (c, x) => (c.rn && c.rn[x]) || dispName(x);   // rider name stored on the car (nickname or name), else the best the app knows
 const paxList = c => (c.riders || []).length ? `<ul class="paxl">${c.riders.map(x => `<li>${esc(rnName(c, x))}</li>`).join("")}</ul>` : "";   // passengers, one per line: only for the driver and admins
 const nameGate = k => { if (hasName()) return false; showPop(t("seatNameH"), t(k), [t("seatNameGo"), () => { $("#sheet").open && $("#sheet").close(); location.hash = "settings"; }]); return true; };
@@ -1453,7 +1453,7 @@ function openChats(eid, groupOnly) {   // member: the group chat and the private
   open.firstChild.onclick = () => { d.close(); openSheet(e.id); };
   body.append(open);
   d.querySelector(".x").onclick = () => d.close(); d.addEventListener("close", () => { unsubs.forEach(u => { try { u(); } catch {} }); d.remove(); });
-  document.body.append(d); d.showModal();
+  document.body.append(d); d.showModal(); d.querySelectorAll(".chatlist").forEach(chatToEnd);
 }
 function viewJoining() {
   if (!canJoinTab()) return "";
@@ -2292,6 +2292,7 @@ async function msgAll(eid, b) {
 let CHAT = null;
 const chatUntil = e => new Date(e.E.getTime() + 15 * 864e5);
 function chatStop() { if (CHAT) { for (const u of CHAT.unsubs) { try { u(); } catch {} } CHAT = null; } }
+const chatToEnd = l => { l.scrollTop = l.scrollHeight; requestAnimationFrame(() => { l.scrollTop = l.scrollHeight; setTimeout(() => { l.scrollTop = l.scrollHeight; }, 250); }); };
 const chatLive = e => !e.pending && Date.now() < chatUntil(e).getTime();
 const chatGroupOk = e => !!HUB?.chatReady && (IS_OWNER || isGoing(e));
 const chatDmOk = e => !!HUB?.dmReady && !IS_OWNER && isGoing(e);
@@ -2303,7 +2304,7 @@ function chatBox(h, sub, watch, send, seenKey) {
   const draw = items => {
     items = items.sort((a, b) => String(a.at).localeCompare(String(b.at))).slice(-200);
     list.innerHTML = items.length ? items.map(m => `<div class="cm${HUB.own?.(m.by) ? " mine" : ""}${!HUB.own?.(m.by) && String(m.at) > prevSeen ? " unread" : ""}"><b>${esc(m.name || "")}</b>${!HUB.own?.(m.by) && String(m.at) > prevSeen ? ` <span class="newtag">${esc(t("chatNew"))}</span>` : ""} <small>${esc(fmtDay(m.at))} ${esc(String(m.at).slice(11, 16))}</small><div>${esc(m.text)}</div></div>`).join("") : `<p class="empty">${esc(t("chatNone"))}</p>`;
-    list.scrollTop = list.scrollHeight;
+    chatToEnd(list);
     if (seenKey && items.length) { markSeen(seenKey, String(items[items.length - 1].at)); if (!el.__s) { el.__s = 1; } clearTimeout(el.__t); el.__t = setTimeout(hubRender, 400); }
   };
   el.querySelector("form").onsubmit = ev => {
@@ -2315,12 +2316,12 @@ function chatBox(h, sub, watch, send, seenKey) {
 }
 function chatMount(e) {
   const slot = $("#chatslot"); if (!slot) { chatStop(); return; }
-  if (CHAT?.eid === e.id) { slot.replaceWith(CHAT.wrap); return; }
+  if (CHAT?.eid === e.id) { slot.replaceWith(CHAT.wrap); CHAT.wrap.querySelectorAll(".chatlist").forEach(chatToEnd); return; }
   chatStop();
   const wrap = document.createElement("div"), unsubs = [], until = chatUntil(e).toISOString();
   if (chatGroupOk(e)) { const c = chatBox(t("chatH"), t("chatSub"), cb => HUB.chatWatch(e.id, cb), (v, nm) => HUB.chatSend(e.id, v, nm, until), "g:" + e.id); wrap.append(c.el); unsubs.push(c.unsub); }
   if (chatDmOk(e)) { const did = e.id + "~" + HUB.me; const c = chatBox(t("dmH"), t("dmSub"), cb => HUB.dmWatch(did, cb), (v, nm) => HUB.dmSend(did, v, nm, until, e.t), "d:" + did); wrap.append(c.el); unsubs.push(c.unsub); }
-  CHAT = { eid: e.id, wrap, unsubs }; slot.replaceWith(wrap);
+  CHAT = { eid: e.id, wrap, unsubs }; slot.replaceWith(wrap); wrap.querySelectorAll(".chatlist").forEach(chatToEnd);
 }
 function openDm(eid, em) {   // organiser: private chat with one person about one event
   const e = EVENTS.find(x => x.id === eid); if (!e) return;
@@ -2330,7 +2331,7 @@ function openDm(eid, em) {   // organiser: private chat with one person about on
   const c = chatBox(t("dmH"), t("dmSub"), cb => HUB.dmWatch(did, cb), (v, nm) => HUB.dmSend(did, v, nm, until, e.t).then(() => HUB.sendMsg(em, `💬 ${e.t}\n${v}`)), "d:" + did);
   d.querySelector(".sheet-body").append(c.el);
   d.querySelector(".x").onclick = () => d.close(); d.addEventListener("close", () => { c.unsub(); d.remove(); });
-  document.body.append(d); d.showModal();
+  document.body.append(d); d.showModal(); d.querySelectorAll(".chatlist").forEach(chatToEnd);
 }
 $("#sheet").addEventListener("close", chatStop);
 async function setRevoked(id, revoke, btn) {
