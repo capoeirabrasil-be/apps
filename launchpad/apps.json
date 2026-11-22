@@ -70,6 +70,17 @@
       "web": "",
       "appstore": "https://apps.apple.com/app/id957586938",
       "playstore": ""
+    },
+    {
+      "section": "other",
+      "id": "rota-pra-roda",
+      "name": "Rota Pra Roda",
+      "description": "A worldwide Agenda focused on Capoeira events",
+      "icon": "https://www.google.com/s2/favicons?domain=rota-pra-roda.app&sz=128",
+      "web": "https://rota-pra-roda.app",
+      "appstore": "",
+      "playstore": "",
+      "soon": true
     }
   ]
 }
