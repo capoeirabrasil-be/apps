@@ -4,7 +4,7 @@
 Usage: python3 launchpad/tools/xlsx_to_json.py path/to/launchpad-apps.xlsx
 
 Columns (found by header name, any order): Section | App name | Short description | Web app link |
-App Store | Google Play | Icon (optional) | Hidden (Y = only on the owner's phone). Section: 1/Congo, 2/Friends, 3/Other (empty = other).
+App Store | Google Play | Icon (optional) | Hidden (Y = only on the owner's phone) | Coming soon (Y = shows a "Coming soon" tag instead of Open). Section: 1/Congo, 2/Friends, 3/Other (empty = other).
 A store cell may hold a link or just "yes". Rows with "yes" are reported so the real
 store link can be looked up and pasted into apps.json (or back into the sheet).
 Existing icons in apps.json are kept when the app name matches.
@@ -39,6 +39,7 @@ def main(xlsx):
         ios, android, icon = col(row, "app store"), col(row, "google play", "play"), col(row, "icon")
         sec = cell(col(row, "section")).lower()
         hidden = cell(col(row, "hidden")).lower() in ("y", "yes", "ja", "x", "true", "1")
+        soon = cell(col(row, "coming soon", "soon")).lower() in ("y", "yes", "ja", "x", "true", "1")
         name = cell(name)
         if not name:
             continue
@@ -51,6 +52,8 @@ def main(xlsx):
              "appstore": cell(ios), "playstore": cell(android)}
         if hidden:
             a["hidden"] = True
+        if soon:
+            a["soon"] = True
         for k in ("appstore", "playstore"):
             v = a[k]
             if v.lower() in ("yes", "y", "ja", "oui", "sim", "x"):
