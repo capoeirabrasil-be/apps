@@ -54,6 +54,8 @@ def main(xlsx):
             a["hidden"] = True
         if soon:
             a["soon"] = True
+        if a["web"] and not a["web"].lower().startswith(("http://", "https://")):
+            a["web"] = "https://" + a["web"]
         for k in ("appstore", "playstore"):
             v = a[k]
             if v.lower() in ("yes", "y", "ja", "oui", "sim", "x"):
